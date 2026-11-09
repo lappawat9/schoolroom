@@ -2,7 +2,6 @@
 **/dist
 **/.env*
 **/.vercel
-**/test
 **/*.log
 **/*.tsbuildinfo
 .git
