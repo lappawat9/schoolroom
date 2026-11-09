@@ -5,7 +5,14 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DataSource, EntityManager, IsNull, Not, Repository } from "typeorm";
+import {
+  DataSource,
+  EntityManager,
+  In,
+  IsNull,
+  Not,
+  Repository,
+} from "typeorm";
 import { LookupService } from "../common/lookup.service";
 import { Student } from "../students/student.entity";
 import { StudentQueryDto } from "../students/student.dto";
@@ -46,8 +53,13 @@ export class ClassroomService {
       qb.andWhere("classroom.name LIKE :name", { name: `%${query.name}%` });
     if (query.teacherName)
       qb.andWhere(
-        "(teacher.firstName LIKE :teacher OR teacher.lastName LIKE :teacher)",
-        { teacher: `%${query.teacherName}%` },
+        `(teacher.firstName LIKE :teacher OR teacher.lastName LIKE :teacher
+          OR CONCAT(teacher.firstName, teacher.lastName) LIKE :fullName
+          OR CONCAT(COALESCE(prefix.name, ''), teacher.firstName, teacher.lastName) LIKE :fullName)`,
+        {
+          teacher: `%${query.teacherName}%`,
+          fullName: `%${query.teacherName.replace(/\s+/g, "")}%`,
+        },
       );
 
     const total = await qb.getCount();
@@ -120,16 +132,36 @@ export class ClassroomService {
         dto.academicYear !== undefined &&
         dto.academicYear !== classroom.academicYear
       ) {
-        const hasHistory = await manager
+        const members = await manager
           .getRepository(ClassroomStudent)
           .createQueryBuilder("membership")
-          .withDeleted()
+          .innerJoin("membership.student", "student")
           .where("membership.classroomId = :id", { id })
-          .getExists();
-        if (hasHistory)
-          throw new ConflictException(
-            "ห้องนี้มีประวัตินักเรียนแล้ว กรุณาสร้างห้องใหม่สำหรับปีการศึกษาอื่น",
-          );
+          .orderBy("membership.studentId", "ASC")
+          .getMany();
+        for (const member of members)
+          await this.lockStudent(manager, member.studentId);
+        if (members.length) {
+          const conflict = await manager.findOne(ClassroomStudent, {
+            where: {
+              studentId: In(members.map((member) => member.studentId)),
+              academicYear: dto.academicYear,
+              classroomId: Not(id),
+            },
+            ...(this.dataSource.options.type === "mysql"
+              ? { lock: { mode: "pessimistic_write" as const } }
+              : {}),
+          });
+          if (conflict)
+            throw new ConflictException(
+              "มีนักเรียนอยู่ในห้องอื่นของปีการศึกษานี้แล้ว กรุณาจัดห้องใหม่ก่อนเปลี่ยนปี",
+            );
+        }
+        await manager.update(
+          ClassroomStudent,
+          { classroomId: id },
+          { academicYear: dto.academicYear },
+        );
       }
       await manager.update(Classroom, id, dto);
     });

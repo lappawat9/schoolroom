@@ -67,10 +67,11 @@ export class ClassroomController {
   @ApiOperation({
     summary: "แก้ไขห้องเรียน",
     description:
-      "ส่งเฉพาะฟิลด์ที่ต้องการแก้ไข ส่ง homeroomTeacherId เป็น null เพื่อนำครูออก ห้องที่มีประวัตินักเรียนแล้วเปลี่ยนปีการศึกษาไม่ได้",
+      "ส่งเฉพาะฟิลด์ที่ต้องการแก้ไข ส่ง homeroomTeacherId เป็น null เพื่อนำครูออก การเปลี่ยนปีการศึกษาจะปรับปีในรายการจัดห้องด้วย",
   })
   @ApiConflictResponse({
-    description: "เลขห้องซ้ำ หรือพยายามเปลี่ยนปีของห้องที่มีประวัติแล้ว",
+    description:
+      "เลขห้องซ้ำ หรือการเปลี่ยนปีทำให้นักเรียนมีสองห้องในปีเดียวกัน",
   })
   update(
     @Param("id", ParseIntPipe) id: number,
