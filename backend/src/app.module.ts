@@ -1,27 +1,38 @@
-import { Controller, Get, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { GraphQLModule, Query, Resolver } from "@nestjs/graphql";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
 import { databaseOptions } from "./database/options";
 import { StudentModule } from "./students/student.module";
 import { ClassroomModule } from "./classrooms/classroom.module";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-@ApiTags("Health")
-@Controller("health")
-class HealthController {
+import { formatGraphQLError } from "./common/graphql-error";
+@Resolver()
+class HealthResolver {
   constructor(private readonly dataSource: DataSource) {}
-  @Get()
-  @ApiOperation({ summary: "ตรวจสอบ API และการเชื่อมต่อ MySQL" })
+  @Query(() => String, { description: "ตรวจสอบ API และการเชื่อมต่อ MySQL" })
   async health() {
     await this.dataSource.query("SELECT 1");
-    return { status: "ok" };
+    return "ok";
   }
 }
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseOptions()),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      path: "/api/graphql",
+      autoSchemaFile: true,
+      sortSchema: true,
+      graphiql: true,
+      introspection: true,
+      includeStacktraceInErrorResponses: false,
+      autoTransformHttpErrors: false,
+      formatError: formatGraphQLError,
+    }),
     StudentModule,
     ClassroomModule,
   ],
-  controllers: [HealthController],
+  providers: [HealthResolver],
 })
 export class AppModule {}

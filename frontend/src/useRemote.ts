@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "./api";
-export function useRemote<T>(path: string, revision = 0) {
+export function useRemote<T>(query: string, variables: object = {}, revision = 0) {
+  const variablesKey = JSON.stringify(variables);
   const [data, setData] = useState<T>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -10,7 +11,7 @@ export function useRemote<T>(path: string, revision = 0) {
     let active = true;
     setLoading(true);
     setError("");
-    api<T>(path)
+    api<T>(query, JSON.parse(variablesKey))
       .then((value) => {
         if (active) setData(value);
       })
@@ -26,6 +27,6 @@ export function useRemote<T>(path: string, revision = 0) {
     return () => {
       active = false;
     };
-  }, [path, revision, retry]);
+  }, [query, variablesKey, revision, retry]);
   return { data, loading, error, reload };
 }

@@ -21,7 +21,14 @@ import {
   TeamOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { api, queryString } from "./api";
+import { api } from "./api";
+import {
+  CREATE_STUDENT,
+  DELETE_STUDENT,
+  LOOKUPS,
+  STUDENTS,
+  UPDATE_STUDENT,
+} from "./queries";
 import { useRemote } from "./useRemote";
 import type { Lookups, Page, Student } from "./types";
 import {
@@ -54,10 +61,11 @@ export default function Students({ revision, onChange }: PageProps) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const result = useRemote<Page<Student>>(
-    `/students?${queryString({ ...filters, page, pageSize })}`,
+    STUDENTS,
+    { filter: { ...filters, page, pageSize } },
     revision,
   );
-  const lookups = useRemote<Lookups>("/lookups");
+  const lookups = useRemote<Lookups>(LOOKUPS);
   const [editing, setEditing] = useState<Student | null>();
   const [form] = Form.useForm<StudentForm>();
   const [saving, setSaving] = useState(false);
@@ -90,9 +98,8 @@ export default function Students({ revision, onChange }: PageProps) {
         birthDate: values.birthDate.format("YYYY-MM-DD"),
       };
       await api(
-        editing ? `/students/${editing.id}` : "/students",
-        editing ? "PATCH" : "POST",
-        body,
+        editing ? UPDATE_STUDENT : CREATE_STUDENT,
+        { ...(editing ? { id: editing.id } : {}), input: body },
       );
       message.success("บันทึกข้อมูลนักเรียนแล้ว");
       setEditing(undefined);
@@ -106,7 +113,7 @@ export default function Students({ revision, onChange }: PageProps) {
 
   async function remove(student: Student) {
     try {
-      await api(`/students/${student.id}`, "DELETE");
+      await api(DELETE_STUDENT, { id: student.id });
       message.success("ลบข้อมูลนักเรียนแล้ว");
       if (result.data?.data.length === 1 && page > 1) setPage(page - 1);
       onChange();
@@ -136,6 +143,7 @@ export default function Students({ revision, onChange }: PageProps) {
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
       <Form
+        name="student-search"
         form={searchForm}
         className="filter-bar"
         layout="vertical"
@@ -292,6 +300,7 @@ export default function Students({ revision, onChange }: PageProps) {
           เลขประจำตัวสองหลักแรกคือปีที่เข้าเรียน เช่น 69001 หมายถึงปี 2569
         </p>
         <Form
+          name="student-editor"
           form={form}
           layout="vertical"
           onFinish={save}
