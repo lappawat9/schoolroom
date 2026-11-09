@@ -1,4 +1,3 @@
--- MySQL: นักเรียนอายุเต็มปี 10-12 ปี พร้อมห้องเรียนล่าสุดที่ยังใช้งาน
 SELECT
     s.student_code,
     CONCAT(s.first_name, ' ', s.last_name) AS full_name,

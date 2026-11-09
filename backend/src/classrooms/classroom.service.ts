@@ -99,32 +99,38 @@ export class ClassroomService {
   async update(id: number, dto: UpdateClassroomDto) {
     if (!Object.keys(dto).length)
       throw new BadRequestException("กรุณาระบุข้อมูลที่ต้องการแก้ไข");
-    const classroom = await this.findOne(id);
-    await this.lookupService.validateClassroom(
-      dto.gradeLevelId ?? classroom.gradeLevelId,
-      dto.homeroomTeacherId ?? classroom.homeroomTeacherId,
-    );
-    await this.checkDuplicate(
-      dto.roomNumber ?? classroom.roomNumber,
-      dto.academicYear ?? classroom.academicYear,
-      id,
-    );
-    if (
-      dto.academicYear !== undefined &&
-      dto.academicYear !== classroom.academicYear
-    ) {
-      const hasHistory = await this.dataSource
-        .getRepository(ClassroomStudent)
-        .createQueryBuilder("membership")
-        .withDeleted()
-        .where("membership.classroomId = :id", { id })
-        .getExists();
-      if (hasHistory)
-        throw new ConflictException(
-          "ห้องนี้มีประวัตินักเรียนแล้ว กรุณาสร้างห้องใหม่สำหรับปีการศึกษาอื่น",
-        );
-    }
-    await this.classrooms.update(id, dto);
+    await this.dataSource.transaction(async (manager) => {
+      const classroom = await this.lockClassroom(manager, id);
+      const teacherId =
+        dto.homeroomTeacherId === undefined
+          ? classroom.homeroomTeacherId
+          : dto.homeroomTeacherId;
+      await this.lookupService.validateClassroom(
+        dto.gradeLevelId ?? classroom.gradeLevelId,
+        teacherId,
+      );
+      await this.checkDuplicate(
+        dto.roomNumber ?? classroom.roomNumber,
+        dto.academicYear ?? classroom.academicYear,
+        id,
+      );
+      if (
+        dto.academicYear !== undefined &&
+        dto.academicYear !== classroom.academicYear
+      ) {
+        const hasHistory = await manager
+          .getRepository(ClassroomStudent)
+          .createQueryBuilder("membership")
+          .withDeleted()
+          .where("membership.classroomId = :id", { id })
+          .getExists();
+        if (hasHistory)
+          throw new ConflictException(
+            "ห้องนี้มีประวัตินักเรียนแล้ว กรุณาสร้างห้องใหม่สำหรับปีการศึกษาอื่น",
+          );
+      }
+      await manager.update(Classroom, id, dto);
+    });
     return this.findOne(id);
   }
 

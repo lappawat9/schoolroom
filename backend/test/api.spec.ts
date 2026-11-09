@@ -208,6 +208,30 @@ test("student and classroom API", async (t) => {
   );
 
   await t.test(
+    "can clear a teacher assignment after that teacher was soft-deleted",
+    async () => {
+      const teacher = await source.getRepository(Teacher).save({
+        teacherCode: "T001",
+        prefixId: 1,
+        firstName: "ครู",
+        lastName: "ทดสอบ",
+      });
+      await http
+        .patch(`/api/classrooms/${roomB}`)
+        .send({ homeroomTeacherId: teacher.id })
+        .expect(200);
+      await source.getRepository(Teacher).softDelete(teacher.id);
+      const updated = (
+        await http
+          .patch(`/api/classrooms/${roomB}`)
+          .send({ homeroomTeacherId: null })
+          .expect(200)
+      ).body;
+      assert.equal(updated.homeroomTeacherId, null);
+    },
+  );
+
+  await t.test(
     "transfers within one academic year and preserves membership history",
     async () => {
       await http
