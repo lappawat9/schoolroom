@@ -15,13 +15,13 @@ import {
 } from "typeorm";
 import { LookupService } from "../common/lookup.service";
 import { Student } from "../students/student.entity";
-import { StudentQueryDto } from "../students/student.dto";
+import { StudentFilterInput } from "../students/student.input";
 import { StudentService } from "../students/student.service";
 import {
-  ClassroomQueryDto,
-  CreateClassroomDto,
-  UpdateClassroomDto,
-} from "./classroom.dto";
+  ClassroomFilterInput,
+  CreateClassroomInput,
+  UpdateClassroomInput,
+} from "./classroom.input";
 import { Classroom } from "./classroom.entity";
 import { ClassroomStudent } from "./classroom-student.entity";
 
@@ -43,7 +43,7 @@ export class ClassroomService {
       .leftJoinAndSelect("classroom.gradeLevel", "grade");
   }
 
-  async findAll(query: ClassroomQueryDto) {
+  async findAll(query: ClassroomFilterInput) {
     const qb = this.query();
     if (query.roomNumber)
       qb.andWhere("classroom.roomNumber LIKE :roomNumber", {
@@ -93,7 +93,7 @@ export class ClassroomService {
     return this.toResponse(classroom);
   }
 
-  async create(dto: CreateClassroomDto) {
+  async create(dto: CreateClassroomInput) {
     await this.lookupService.validateClassroom(
       dto.gradeLevelId,
       dto.homeroomTeacherId,
@@ -108,7 +108,7 @@ export class ClassroomService {
     return this.findOne(classroom.id);
   }
 
-  async update(id: number, dto: UpdateClassroomDto) {
+  async update(id: number, dto: UpdateClassroomInput) {
     if (!Object.keys(dto).length)
       throw new BadRequestException("กรุณาระบุข้อมูลที่ต้องการแก้ไข");
     await this.dataSource.transaction(async (manager) => {
@@ -179,7 +179,7 @@ export class ClassroomService {
     });
   }
 
-  async findStudents(id: number, query: StudentQueryDto) {
+  async findStudents(id: number, query: StudentFilterInput) {
     await this.findOne(id);
     return this.studentService.findAll(query, id);
   }

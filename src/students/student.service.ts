@@ -9,10 +9,10 @@ import { ClassroomStudent } from "../classrooms/classroom-student.entity";
 import { LookupService } from "../common/lookup.service";
 import { handleDatabaseError } from "../database/handle-database-error";
 import {
-  CreateStudentDto,
-  StudentQueryDto,
-  UpdateStudentDto,
-} from "./student.dto";
+  CreateStudentInput,
+  StudentFilterInput,
+  UpdateStudentInput,
+} from "./student.input";
 import { Student } from "./student.entity";
 
 @Injectable()
@@ -33,7 +33,7 @@ export class StudentService {
       .leftJoinAndSelect("membership.classroom", "classroom");
   }
 
-  async findAll(query: StudentQueryDto, classroomId?: number) {
+  async findAll(query: StudentFilterInput, classroomId?: number) {
     const qb = this.query();
     if (query.studentCode)
       qb.andWhere("student.studentCode LIKE :code", {
@@ -72,7 +72,7 @@ export class StudentService {
     return this.toResponse(student);
   }
 
-  async create(dto: CreateStudentDto) {
+  async create(dto: CreateStudentInput) {
     this.validateBirthDate(dto.birthDate);
     await this.lookupService.validateStudent(
       dto.prefixId,
@@ -87,7 +87,7 @@ export class StudentService {
     }
   }
 
-  async update(id: number, dto: UpdateStudentDto) {
+  async update(id: number, dto: UpdateStudentInput) {
     if (!Object.keys(dto).length)
       throw new BadRequestException("กรุณาระบุข้อมูลที่ต้องการแก้ไข");
     const student = await this.findOne(id);
