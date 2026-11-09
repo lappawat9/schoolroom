@@ -23,6 +23,8 @@ Copy-Item .env.example .env
 
 Backend เชื่อม schema ที่มีตาราง `students`, `classrooms`, `classroom_students`, `teachers`, `master_prefix`, `master_gender` และ `grade_levels` พร้อมข้อมูลอ้างอิงสำหรับ dropdown โดยปิด `synchronize` ไว้
 
+Backend ใช้ ES Modules (`type: module` และ TypeScript `NodeNext`) เส้นทาง import ภายในจึงลงท้าย `.js` เพื่อให้ไฟล์หลัง build รันได้บน Node.js และ Vercel คำสั่ง `npm run dev` ใช้ `tsc-watch` คอมไพล์และเริ่มเซิร์ฟเวอร์ใหม่เมื่อแก้ไฟล์
+
 ```powershell
 npm run dev
 ```
@@ -110,4 +112,4 @@ git push origin back
 
 branch นี้มีเฉพาะ Backend สำหรับการเปลี่ยนแปลงหน้าเว็บให้ใช้ branch `front`
 
-โค้ด REST เดิมเก็บไว้ที่ branch [rest-back](https://github.com/lappawat9/schoolroom/tree/rest-back) ใช้คู่กับ Frontend ที่ branch `rest-front` การเปลี่ยนครั้งนี้ไม่เปลี่ยนโครงสร้างตาราง จึงใช้ฐานข้อมูลเดิมได้ทั้งสองรุ่น หากย้อนกลับด้วย `git revert` ต้องคืน Frontend ให้เป็นรุ่น REST ด้วย
+โค้ด REST เดิมเก็บไว้ที่ branch [rest-back](https://github.com/lappawat9/schoolroom/tree/rest-back) ใช้คู่กับ Frontend ที่ branch `rest-front` การเปลี่ยนครั้งนี้ไม่เปลี่ยนโครงสร้างตาราง จึงใช้ฐานข้อมูลเดิมได้ทั้งสองรุ่น หากมี commit เพิ่มเติมหลังย้าย GraphQL ให้คืนทั้งชุดจาก branch สำรอง รวมไฟล์ตั้งค่า module และ dependencies แล้วรัน `npm ci` และ build ใหม่ทั้งสองฝั่ง

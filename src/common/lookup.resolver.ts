@@ -1,6 +1,6 @@
 import { Query, Resolver } from "@nestjs/graphql";
-import { Lookups } from "./lookup.model";
-import { LookupService } from "./lookup.service";
+import { Lookups } from "./lookup.model.js";
+import { LookupService } from "./lookup.service.js";
 
 @Resolver(() => Lookups)
 export class LookupResolver {

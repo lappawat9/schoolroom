@@ -1,13 +1,13 @@
 import { Args, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { StudentFilterInput } from "../students/student.input";
-import { StudentModel, StudentPage } from "../students/student.model";
-import { ClassroomService } from "./classroom.service";
+import { StudentFilterInput } from "../students/student.input.js";
+import { StudentModel, StudentPage } from "../students/student.model.js";
+import { ClassroomService } from "./classroom.service.js";
 import {
   ClassroomFilterInput,
   CreateClassroomInput,
   UpdateClassroomInput,
-} from "./classroom.input";
-import { ClassroomModel, ClassroomPage } from "./classroom.model";
+} from "./classroom.input.js";
+import { ClassroomModel, ClassroomPage } from "./classroom.model.js";
 
 @Resolver(() => ClassroomModel)
 export class ClassroomResolver {

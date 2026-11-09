@@ -5,15 +5,15 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, IsNull, Repository } from "typeorm";
-import { ClassroomStudent } from "../classrooms/classroom-student.entity";
-import { LookupService } from "../common/lookup.service";
-import { handleDatabaseError } from "../database/handle-database-error";
+import { ClassroomStudent } from "../classrooms/classroom-student.entity.js";
+import { LookupService } from "../common/lookup.service.js";
+import { handleDatabaseError } from "../database/handle-database-error.js";
 import {
   CreateStudentInput,
   StudentFilterInput,
   UpdateStudentInput,
-} from "./student.input";
-import { Student } from "./student.entity";
+} from "./student.input.js";
+import { Student } from "./student.entity.js";
 
 @Injectable()
 export class StudentService {
