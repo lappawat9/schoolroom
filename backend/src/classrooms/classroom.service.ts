@@ -13,17 +13,17 @@ import {
   Not,
   Repository,
 } from "typeorm";
-import { LookupService } from "../common/lookup.service";
-import { Student } from "../students/student.entity";
-import { StudentFilterInput } from "../students/student.input";
-import { StudentService } from "../students/student.service";
+import { LookupService } from "../common/lookup.service.js";
+import { Student } from "../students/student.entity.js";
+import { StudentFilterInput } from "../students/student.input.js";
+import { StudentService } from "../students/student.service.js";
 import {
   ClassroomFilterInput,
   CreateClassroomInput,
   UpdateClassroomInput,
-} from "./classroom.input";
-import { Classroom } from "./classroom.entity";
-import { ClassroomStudent } from "./classroom-student.entity";
+} from "./classroom.input.js";
+import { Classroom } from "./classroom.entity.js";
+import { ClassroomStudent } from "./classroom-student.entity.js";
 
 @Injectable()
 export class ClassroomService {

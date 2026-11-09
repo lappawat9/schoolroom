@@ -9,7 +9,7 @@ import {
   Min,
   MinLength,
 } from "class-validator";
-import { PaginationInput, Trim } from "../common/pagination.input";
+import { PaginationInput, Trim } from "../common/pagination.input.js";
 
 @InputType()
 export class CreateStudentInput {

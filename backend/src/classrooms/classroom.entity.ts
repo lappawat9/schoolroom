@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { GradeLevel, Teacher } from "../common/lookup.entity";
+import { GradeLevel, Teacher } from "../common/lookup.entity.js";
 
 @Entity("classrooms")
 export class Classroom {

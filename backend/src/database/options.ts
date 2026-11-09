@@ -1,9 +1,9 @@
 import "dotenv/config";
 import { DataSourceOptions } from "typeorm";
-import { Classroom } from "../classrooms/classroom.entity";
-import { Student } from "../students/student.entity";
-import { ClassroomStudent } from "../classrooms/classroom-student.entity";
-import { Gender, GradeLevel, Prefix, Teacher } from "../common/lookup.entity";
+import { Classroom } from "../classrooms/classroom.entity.js";
+import { Student } from "../students/student.entity.js";
+import { ClassroomStudent } from "../classrooms/classroom-student.entity.js";
+import { Gender, GradeLevel, Prefix, Teacher } from "../common/lookup.entity.js";
 
 export function databaseOptions(): DataSourceOptions {
   for (const key of ["DB_HOST", "DB_USERNAME", "DB_PASSWORD", "DB_DATABASE"]) {

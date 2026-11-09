@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { EntityManager, Repository } from "typeorm";
-import { Gender, GradeLevel, Prefix, Teacher } from "./lookup.entity";
+import { Gender, GradeLevel, Prefix, Teacher } from "./lookup.entity.js";
 
 @Injectable()
 export class LookupService {

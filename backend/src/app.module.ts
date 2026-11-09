@@ -3,10 +3,10 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { GraphQLModule, Query, Resolver } from "@nestjs/graphql";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
-import { databaseOptions } from "./database/options";
-import { StudentModule } from "./students/student.module";
-import { ClassroomModule } from "./classrooms/classroom.module";
-import { formatGraphQLError } from "./common/graphql-error";
+import { databaseOptions } from "./database/options.js";
+import { StudentModule } from "./students/student.module.js";
+import { ClassroomModule } from "./classrooms/classroom.module.js";
+import { formatGraphQLError } from "./common/graphql-error.js";
 @Resolver()
 class HealthResolver {
   constructor(private readonly dataSource: DataSource) {}

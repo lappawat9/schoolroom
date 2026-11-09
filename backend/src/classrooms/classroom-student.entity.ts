@@ -8,8 +8,8 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from "typeorm";
-import { Student } from "../students/student.entity";
-import { Classroom } from "./classroom.entity";
+import { Student } from "../students/student.entity.js";
+import { Classroom } from "./classroom.entity.js";
 
 @Entity("classroom_students")
 export class ClassroomStudent {
