@@ -45,12 +45,10 @@ API อยู่ที่ http://localhost:3000/api และ Swagger อยู�
 ## ตรวจสอบและ deploy
 
 ```powershell
-npm test
 npm run build
 npm start
 ```
 
-Tests ใช้ฐานข้อมูลในหน่วยความจำแยกจากข้อมูลที่เว็บใช้งาน
 Vercel ใช้ branch `back`, Root Directory เป็น root ของ branch และ Framework เป็น NestJS โดยมี entrypoint ที่ `src/main.ts`
 ตั้ง environment variables บน Vercel แยกจาก `.env` ในเครื่อง
 
