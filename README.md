@@ -5,7 +5,7 @@
 - [ทดลองใช้งาน](https://schoolroom-web.vercel.app)
 - [ภาพรวมโปรเจกต์](https://github.com/lappawat9/schoolroom)
 - [Backend](https://github.com/lappawat9/schoolroom/tree/back)
-- [Swagger](https://schoolroom-api.vercel.app/api/docs)
+- GraphQL ในเครื่อง: http://localhost:3000/api/graphql
 
 ## เริ่มพัฒนา
 
@@ -19,7 +19,7 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-ตั้ง `VITE_API_URL` ใน `.env` เป็น `http://localhost:3000/api` เมื่อรัน Backend ในเครื่อง หรือ `https://schoolroom-api.vercel.app/api` เพื่อเชื่อม API ออนไลน์
+ตั้ง `VITE_API_URL` ใน `.env` เป็น `http://localhost:3000/api/graphql` เมื่อรัน Backend ในเครื่อง หรือ `https://schoolroom-api.vercel.app/api/graphql` หลัง deploy Backend รุ่น GraphQL แล้ว
 เปิดเว็บที่ http://localhost:5173 หาก PowerShell บล็อก `npm.ps1` ใช้ `npm.cmd` แทน `npm`
 
 ## การใช้งาน
@@ -27,6 +27,8 @@ npm run dev
 - หน้านักเรียน: เพิ่ม แก้ไข ลบ และค้นหาด้วยเลขประจำตัว ชื่อหรือนามสกุล และระดับชั้น
 - หน้าห้องเรียน: จัดการห้อง ครูประจำชั้น และรายชื่อนักเรียน พร้อมเพิ่ม ย้าย และนำนักเรียนออกจากห้อง
 - ตัวเลือกคำนำหน้า เพศ ระดับชั้น และครูโหลดจาก API
+
+หน้าเว็บเรียก GraphQL ผ่าน `src/api.ts` โดยส่ง query และ variables เป็น JSON ไปที่ endpoint เดียว คำสั่งอ่านและแก้ไขข้อมูลอยู่ใน `src/queries.ts` ส่วน `useRemote` โหลดใหม่เมื่อ variables หรือ revision เปลี่ยน และแสดงข้อผิดพลาดจาก GraphQL แม้ HTTP status เป็น 200
 
 ## Build และ deploy
 
@@ -47,3 +49,5 @@ git push origin front
 ```
 
 branch นี้มีเฉพาะ Frontend สำหรับการเปลี่ยนแปลง API ให้ใช้ branch `back`
+
+โค้ด Frontend ก่อนเปลี่ยนเป็น GraphQL เก็บไว้ที่ branch [rest-front](https://github.com/lappawat9/schoolroom/tree/rest-front) ใช้คู่กับ Backend ที่ branch `rest-back` หากย้อนกลับด้วย `git revert` ให้คืนทั้งสองฝั่งและตั้ง `VITE_API_URL` ลงท้าย `/api` ก่อน build ใหม่

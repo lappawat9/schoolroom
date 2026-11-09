@@ -23,7 +23,18 @@ import {
   TeamOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
-import { api, queryString } from "./api";
+import { api } from "./api";
+import {
+  ASSIGN_STUDENT,
+  CLASSROOMS,
+  CLASSROOM_STUDENTS,
+  CREATE_CLASSROOM,
+  DELETE_CLASSROOM,
+  LOOKUPS,
+  REMOVE_STUDENT_FROM_CLASSROOM,
+  STUDENTS,
+  UPDATE_CLASSROOM,
+} from "./queries";
 import { useRemote } from "./useRemote";
 import type { Classroom, Lookups, Page, Student } from "./types";
 import {
@@ -46,10 +57,11 @@ export default function Classrooms({ revision, onChange }: PageProps) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const result = useRemote<Page<Classroom>>(
-    `/classrooms?${queryString({ ...filters, page, pageSize })}`,
+    CLASSROOMS,
+    { filter: { ...filters, page, pageSize } },
     revision,
   );
-  const lookups = useRemote<Lookups>("/lookups");
+  const lookups = useRemote<Lookups>(LOOKUPS);
   const [editing, setEditing] = useState<Classroom | null>();
   const [selected, setSelected] = useState<Classroom>();
   const [form] = Form.useForm<Classroom>();
@@ -73,9 +85,11 @@ export default function Classrooms({ revision, onChange }: PageProps) {
     setSaving(true);
     try {
       await api(
-        editing ? `/classrooms/${editing.id}` : "/classrooms",
-        editing ? "PATCH" : "POST",
-        { ...values, homeroomTeacherId: values.homeroomTeacherId ?? null },
+        editing ? UPDATE_CLASSROOM : CREATE_CLASSROOM,
+        {
+          ...(editing ? { id: editing.id } : {}),
+          input: { ...values, homeroomTeacherId: values.homeroomTeacherId ?? null },
+        },
       );
       message.success("บันทึกข้อมูลห้องเรียนแล้ว");
       setEditing(undefined);
@@ -88,7 +102,7 @@ export default function Classrooms({ revision, onChange }: PageProps) {
   }
   async function remove(room: Classroom) {
     try {
-      await api(`/classrooms/${room.id}`, "DELETE");
+      await api(DELETE_CLASSROOM, { id: room.id });
       message.success("ลบห้องเรียนแล้ว ข้อมูลนักเรียนยังอยู่ในระบบ");
       if (result.data?.data.length === 1 && page > 1) setPage(page - 1);
       onChange();
@@ -117,6 +131,7 @@ export default function Classrooms({ revision, onChange }: PageProps) {
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
       <Form
+        name="classroom-search"
         form={searchForm}
         className="filter-bar"
         layout="vertical"
@@ -272,6 +287,7 @@ export default function Classrooms({ revision, onChange }: PageProps) {
           เลขห้องต้องไม่ซ้ำกันในปีการศึกษาเดียวกัน
         </p>
         <Form
+          name="classroom-editor"
           form={form}
           layout="vertical"
           onFinish={save}
@@ -373,13 +389,15 @@ function Members({
   const { message, modal } = App.useApp();
   const [page, setPage] = useState(1);
   const members = useRemote<Page<Student>>(
-    `/classrooms/${room.id}/students?page=${page}&pageSize=10`,
+    CLASSROOM_STUDENTS,
+    { classroomId: room.id, filter: { page, pageSize: 10 } },
     revision,
   );
   const [name, setName] = useState("");
   const [search, setSearch] = useState("");
   const available = useRemote<Page<Student>>(
-    `/students?${queryString({ name: search, pageSize: 100 })}`,
+    STUDENTS,
+    { filter: { name: search, pageSize: 100 } },
     revision,
   );
   const [studentId, setStudentId] = useState<number>();
@@ -393,7 +411,7 @@ function Members({
     async function execute() {
       setSaving(true);
       try {
-        await api(`/classrooms/${room.id}/students/${studentId}`, "PUT");
+        await api(ASSIGN_STUDENT, { classroomId: room.id, studentId });
         message.success("จัดนักเรียนเข้าห้องเรียบร้อยแล้ว");
         setStudentId(undefined);
         onChange();
@@ -415,7 +433,10 @@ function Members({
   }
   async function remove(student: Student) {
     try {
-      await api(`/classrooms/${room.id}/students/${student.id}`, "DELETE");
+      await api(REMOVE_STUDENT_FROM_CLASSROOM, {
+        classroomId: room.id,
+        studentId: student.id,
+      });
       message.success("นำนักเรียนออกจากห้องแล้ว");
       if (members.data?.data.length === 1 && page > 1) setPage(page - 1);
       onChange();

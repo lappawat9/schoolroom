@@ -1,29 +1,28 @@
-const baseUrl = (
+const endpoint = (
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:3000/api" : "")
+  (import.meta.env.DEV ? "http://localhost:3000/api/graphql" : "")
 ).replace(/\/$/, "");
-export function queryString(values: object) {
-  const params = new URLSearchParams();
-  Object.entries(values).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "")
-      params.set(key, String(value));
-  });
-  return params.toString();
+
+interface GraphQLResponse<T> {
+  data?: { result: T };
+  errors?: {
+    message: string;
+    extensions?: { originalError?: { message?: string | string[] } };
+  }[];
 }
+
 export async function api<T>(
-  path: string,
-  method = "GET",
-  body?: unknown,
+  query: string,
+  variables: object = {},
 ): Promise<T> {
-  if (!baseUrl)
+  if (!endpoint)
     throw new Error("ยังไม่ได้ตั้งค่า VITE_API_URL สำหรับเชื่อมต่อ API");
   let response: Response;
   try {
-    response = await fetch(`${baseUrl}${path}`, {
-      method,
-      headers:
-        body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
+    response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, variables }),
       signal: AbortSignal.timeout(20000),
     });
   } catch {
@@ -31,14 +30,17 @@ export async function api<T>(
       "เชื่อมต่อ API ไม่สำเร็จ กรุณาตรวจสอบเซิร์ฟเวอร์และการเชื่อมต่อ",
     );
   }
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(
-      Array.isArray(error.message)
-        ? error.message.join(" · ")
-        : error.message || `เกิดข้อผิดพลาด (${response.status})`,
-    );
+  const payload: GraphQLResponse<T> = await response.json().catch(() => ({}));
+  if (payload.errors?.length) {
+    const messages = payload.errors.flatMap((error) => {
+      const message = error.extensions?.originalError?.message ?? error.message;
+      return Array.isArray(message) ? message : [message];
+    });
+    throw new Error([...new Set(messages)].join(" · "));
   }
-  if (response.status === 204) return undefined as T;
-  return response.json();
+  if (!response.ok)
+    throw new Error(`เกิดข้อผิดพลาด (${response.status})`);
+  if (!payload.data || !("result" in payload.data))
+    throw new Error("รูปแบบข้อมูลตอบกลับจาก GraphQL ไม่ถูกต้อง");
+  return payload.data.result;
 }
