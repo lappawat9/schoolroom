@@ -43,6 +43,18 @@ test("student and classroom API", async (t) => {
   await app.init();
   t.after(() => app.close());
   const source = module.get(DataSource);
+  // SQL.js ใช้ทดสอบ HTTP API ส่วน production ใช้ CONCAT ของ MySQL
+  const sqljs = source.driver as unknown as {
+    databaseConnection: {
+      create_function: (
+        name: string,
+        fn: (...values: string[]) => string,
+      ) => void;
+    };
+  };
+  sqljs.databaseConnection.create_function("CONCAT", (...values) =>
+    values.join(""),
+  );
   await source.getRepository(Gender).save({
     id: 1,
     code: "M",
@@ -220,6 +232,21 @@ test("student and classroom API", async (t) => {
         .patch(`/api/classrooms/${roomB}`)
         .send({ homeroomTeacherId: teacher.id })
         .expect(200);
+      for (const name of [
+        "ครู",
+        "ทดสอบ",
+        "ครู ทดสอบ",
+        "เด็กชายครู ทดสอบ",
+        "เด็กชาย ครู  ทดสอบ",
+      ]) {
+        const rooms = (
+          await http
+            .get("/api/classrooms")
+            .query({ teacherName: name })
+            .expect(200)
+        ).body;
+        assert.ok(rooms.data.some((room: { id: number }) => room.id === roomB));
+      }
       await source.getRepository(Teacher).softDelete(teacher.id);
       const updated = (
         await http
@@ -266,7 +293,19 @@ test("student and classroom API", async (t) => {
       await http
         .patch(`/api/classrooms/${roomB}`)
         .send({ academicYear: 2571 })
-        .expect(409);
+        .expect(200);
+      assert.equal(
+        (
+          await source
+            .getRepository(ClassroomStudent)
+            .findOneByOrFail({ classroomId: roomB, studentId })
+        ).academicYear,
+        2571,
+      );
+      await http
+        .patch(`/api/classrooms/${roomB}`)
+        .send({ academicYear: 2569 })
+        .expect(200);
     },
   );
 
@@ -279,6 +318,15 @@ test("student and classroom API", async (t) => {
     assert.equal(found.classroomId, nextYearRoom);
     assert.equal(found.classrooms.length, 2);
     await http
+      .patch(`/api/classrooms/${roomB}`)
+      .send({ academicYear: 2570 })
+      .expect(409);
+    assert.equal(
+      (await http.get(`/api/classrooms/${roomB}`).expect(200)).body
+        .academicYear,
+      2569,
+    );
+    await http
       .delete(`/api/classrooms/${nextYearRoom}/students/${studentId}`)
       .expect(200);
     assert.equal(
@@ -286,6 +334,14 @@ test("student and classroom API", async (t) => {
         .classroomId,
       roomB,
     );
+    await http
+      .patch(`/api/classrooms/${nextYearRoom}`)
+      .send({ academicYear: 2572 })
+      .expect(200);
+    const history = await source
+      .getRepository(ClassroomStudent)
+      .find({ withDeleted: true, where: { classroomId: nextYearRoom } });
+    assert.ok(history.every((item) => item.academicYear === 2572));
   });
 
   await t.test(

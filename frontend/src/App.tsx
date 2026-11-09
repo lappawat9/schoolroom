@@ -45,16 +45,6 @@ export default function App() {
         </nav>
       </aside>
       <div className="workspace">
-        <header className="topbar">
-          <div className="breadcrumb">
-            ระบบจัดการนักเรียน <span>/</span> <strong>{title}</strong>
-          </div>
-          <span className="date-label">
-            {new Intl.DateTimeFormat("th-TH", { dateStyle: "long" }).format(
-              new Date(),
-            )}
-          </span>
-        </header>
         <main>
           <div className="page-heading">
             <div>
@@ -85,7 +75,6 @@ export default function App() {
             />
             <Route path="*" element={<Navigate to="/students" replace />} />
           </Routes>
-          <footer className="footer">ระบบจัดการนักเรียนและห้องเรียน</footer>
         </main>
       </div>
     </div>
