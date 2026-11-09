@@ -1,7 +1,35 @@
 import { INestApplication } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { readFileSync } from "node:fs";
 
 export function setupSwagger(app: INestApplication) {
+  // ระบุไฟล์ตรง ๆ เพื่อให้ Vercel รวม assets ของ Swagger ใน function bundle
+  const assets = [
+    [
+      "swagger-ui.css",
+      require.resolve("swagger-ui-dist/swagger-ui.css"),
+      "text/css",
+    ],
+    [
+      "swagger-ui-bundle.js",
+      require.resolve("swagger-ui-dist/swagger-ui-bundle.js"),
+      "application/javascript",
+    ],
+    [
+      "swagger-ui-standalone-preset.js",
+      require.resolve("swagger-ui-dist/swagger-ui-standalone-preset.js"),
+      "application/javascript",
+    ],
+  ];
+  const adapter = app.getHttpAdapter();
+  for (const [name, file, contentType] of assets) {
+    const content = readFileSync(file, "utf8");
+    adapter.get(`/api/docs/${name}`, (_request: unknown, response: unknown) => {
+      adapter.setHeader(response, "Content-Type", contentType);
+      adapter.reply(response, content);
+    });
+  }
+
   const config = new DocumentBuilder()
     .setTitle("Schoolroom API")
     .setDescription(
@@ -17,6 +45,7 @@ export function setupSwagger(app: INestApplication) {
     {
       jsonDocumentUrl: "api/docs-json",
       customSiteTitle: "Schoolroom API Docs",
+      customfavIcon: "data:,",
       swaggerOptions: {
         docExpansion: "none",
         displayRequestDuration: true,

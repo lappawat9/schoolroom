@@ -108,11 +108,13 @@ export class ClassroomService {
       await this.lookupService.validateClassroom(
         dto.gradeLevelId ?? classroom.gradeLevelId,
         teacherId,
+        manager,
       );
       await this.checkDuplicate(
         dto.roomNumber ?? classroom.roomNumber,
         dto.academicYear ?? classroom.academicYear,
         id,
+        manager,
       );
       if (
         dto.academicYear !== undefined &&
@@ -191,8 +193,9 @@ export class ClassroomService {
     roomNumber: string,
     academicYear: number,
     id?: number,
+    manager = this.classrooms.manager,
   ) {
-    const exists = await this.classrooms.existsBy({
+    const exists = await manager.getRepository(Classroom).existsBy({
       roomNumber,
       academicYear,
       ...(id ? { id: Not(id) } : {}),
