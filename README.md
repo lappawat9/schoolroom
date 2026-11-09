@@ -5,6 +5,7 @@
 - [ทดลองใช้งาน](https://schoolroom-web.vercel.app)
 - [ภาพรวมโปรเจกต์](https://github.com/lappawat9/schoolroom)
 - [Backend](https://github.com/lappawat9/schoolroom/tree/back)
+- [GraphQL และ GraphiQL ออนไลน์](https://schoolroom-api.vercel.app/api/graphql)
 - GraphQL ในเครื่อง: http://localhost:3000/api/graphql
 
 ## เริ่มพัฒนา
@@ -19,7 +20,7 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-ตั้ง `VITE_API_URL` ใน `.env` เป็น `http://localhost:3000/api/graphql` เมื่อรัน Backend ในเครื่อง หรือ `https://schoolroom-api.vercel.app/api/graphql` หลัง deploy Backend รุ่น GraphQL แล้ว
+ตั้ง `VITE_API_URL` ใน `.env` เป็น `http://localhost:3000/api/graphql` เมื่อรัน Backend ในเครื่อง หรือ `https://schoolroom-api.vercel.app/api/graphql` สำหรับ Backend ออนไลน์
 เปิดเว็บที่ http://localhost:5173 หาก PowerShell บล็อก `npm.ps1` ใช้ `npm.cmd` แทน `npm`
 
 ## การใช้งาน
@@ -39,6 +40,7 @@ npm run preview
 
 Vercel ใช้ branch `front`, Root Directory เป็น root ของ branch, Framework เป็น Vite และ Output Directory เป็น `dist`
 ตั้ง `VITE_API_URL` ก่อน build และอนุญาต origin ของเว็บใน `FRONTEND_ORIGIN` ฝั่ง Backend
+การ deploy ปัจจุบันใช้ Vercel CLI จากโฟลเดอร์ branch นี้; การ push Git อย่างเดียวยังไม่ deploy อัตโนมัติ
 
 ## Push การเปลี่ยนแปลง
 
@@ -50,4 +52,6 @@ git push origin front
 
 branch นี้มีเฉพาะ Frontend สำหรับการเปลี่ยนแปลง API ให้ใช้ branch `back`
 
-โค้ด Frontend ก่อนเปลี่ยนเป็น GraphQL เก็บไว้ที่ branch [rest-front](https://github.com/lappawat9/schoolroom/tree/rest-front) ใช้คู่กับ Backend ที่ branch `rest-back` หากย้อนกลับด้วย `git revert` ให้คืนทั้งสองฝั่งและตั้ง `VITE_API_URL` ลงท้าย `/api` ก่อน build ใหม่
+โค้ด Frontend ก่อนเปลี่ยนเป็น GraphQL เก็บไว้ที่ branch [rest-front](https://github.com/lappawat9/schoolroom/tree/rest-front) ใช้คู่กับ Backend ที่ branch `rest-back`
+
+เก็บงานปัจจุบันให้เรียบร้อยและ `git fetch origin` ก่อนคืนโค้ด ใน branch `front` ใช้ `git restore --source origin/rest-front --staged --worktree .` แล้ว commit ส่วน branch `back` ใช้ `origin/rest-back` และ branch `main` ใช้ `origin/rest-main` วิธีนี้คืนไฟล์ทั้งชุด รวม module และ dependencies โดยเก็บประวัติเดิมไว้ จากนั้นรัน `npm ci` และ build ใหม่ ใช้ Frontend/Backend รุ่นเดียวกัน ตั้ง `VITE_API_URL=https://schoolroom-api.vercel.app/api` ก่อน build Frontend และ deploy ทั้งสองฝั่งอีกครั้ง
