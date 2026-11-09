@@ -4,6 +4,13 @@ React + Vite + Ant Design / NestJS REST API + TypeORM / MySQL
 
 ใช้ **Node.js 24.x** และ npm 11 ขึ้นไป แยก Frontend และ Backend เป็นสองโปรเจกต์บน Vercel
 
+## ลิงก์ใช้งาน
+
+- Frontend: https://schoolroom-web.vercel.app
+- Backend health: https://schoolroom-api.vercel.app/api/health
+- Swagger: https://schoolroom-api.vercel.app/api/docs
+- Source: https://github.com/lappawat9/schoolroom (private repository)
+
 ## รันในเครื่อง
 
 Backend:

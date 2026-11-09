@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 import { Gender, GradeLevel, Prefix, Teacher } from "./lookup.entity";
 
 @Injectable()
@@ -54,10 +54,16 @@ export class LookupService {
       throw new NotFoundException("คำนำหน้า เพศ หรือระดับชั้นไม่ถูกต้อง");
   }
 
-  async validateClassroom(gradeLevelId: number, teacherId?: number | null) {
-    if (!(await this.grades.existsBy({ id: gradeLevelId })))
+  async validateClassroom(
+    gradeLevelId: number,
+    teacherId?: number | null,
+    manager?: EntityManager,
+  ) {
+    const grades = manager ? manager.getRepository(GradeLevel) : this.grades;
+    const teachers = manager ? manager.getRepository(Teacher) : this.teachers;
+    if (!(await grades.existsBy({ id: gradeLevelId })))
       throw new NotFoundException("ไม่พบระดับชั้น");
-    if (teacherId && !(await this.teachers.existsBy({ id: teacherId })))
+    if (teacherId && !(await teachers.existsBy({ id: teacherId })))
       throw new NotFoundException("ไม่พบครูที่เลือก");
   }
 }
