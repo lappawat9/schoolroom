@@ -35,3 +35,16 @@ export class StudentPage {
   @Field(() => Int) page!: number;
   @Field(() => Int) pageSize!: number;
 }
+
+@ObjectType()
+export class StudentClassroomHistory {
+  @Field(() => Int) id!: number;
+  @Field(() => Int) classroomId!: number;
+  @Field(() => String, { nullable: true }) roomNumber!: string | null;
+  @Field(() => String, { nullable: true }) roomName!: string | null;
+  @Field(() => Int) academicYear!: number;
+  @Field() addedAt!: string;
+  @Field(() => String, { nullable: true }) endedAt!: string | null;
+  @Field() classroomDeleted!: boolean;
+  @Field() isActive!: boolean;
+}

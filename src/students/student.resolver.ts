@@ -5,7 +5,7 @@ import {
   StudentFilterInput,
   UpdateStudentInput,
 } from "./student.input.js";
-import { StudentModel, StudentPage } from "./student.model.js";
+import { StudentClassroomHistory, StudentModel, StudentPage } from "./student.model.js";
 
 @Resolver(() => StudentModel)
 export class StudentResolver {
@@ -22,6 +22,13 @@ export class StudentResolver {
   @Query(() => StudentModel)
   student(@Args("id", { type: () => Int }) id: number) {
     return this.studentService.findOne(id);
+  }
+
+  @Query(() => [StudentClassroomHistory], {
+    description: "ประวัติจัดห้อง รวมรายการที่สิ้นสุดแล้วและห้องที่ถูกลบ",
+  })
+  studentClassroomHistory(@Args("studentId", { type: () => Int }) studentId: number) {
+    return this.studentService.classroomHistory(studentId);
   }
 
   @Mutation(() => StudentModel)

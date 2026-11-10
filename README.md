@@ -35,7 +35,7 @@ API และหน้า GraphiQL อยู่ที่ http://localhost:3000/a
 
 ## Query และ Mutation
 
-- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`
+- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`, `studentClassroomHistory`
 - Mutation นักเรียน: `createStudent`, `updateStudent`, `deleteStudent`
 - Mutation ห้องเรียน: `createClassroom`, `updateClassroom`, `deleteClassroom`
 - Mutation จัดห้อง: `assignStudent`, `removeStudentFromClassroom`
@@ -133,3 +133,12 @@ branch นี้มีเฉพาะ Backend สำหรับการเป�
 
 
 branch `rest-main`, `rest-front`, `rest-back` เป็นรุ่น REST ที่รองรับฟังก์ชันล่าสุด รวมการเรียงผลค้นหาและดาวน์โหลด PDF/Excel ส่วน snapshot REST ดั้งเดิมเก็บไว้ที่ tag `rest-baseline-main`, `rest-baseline-front`, `rest-baseline-back`
+
+
+## ประวัติห้องเรียน
+
+Query `studentClassroomHistory(studentId: Int!)` คืนรายการตามปีและวันที่ล่าสุด รวมรายการที่สิ้นสุดแล้วและห้องที่ถูก soft delete
+
+กดชื่อนักเรียนหรือปุ่มประวัติเพื่อดูรายการจัดห้องแยกตามปีการศึกษา แสดงวันที่เพิ่ม วันที่สิ้นสุด สถานะปัจจุบัน และห้องที่ถูกลบ โดยอ่านทั้งรายการปกติและ soft delete จาก classroom_students
+
+ประวัติแสดงเท่าที่ฐานข้อมูลเก็บไว้ ไม่มีข้อมูลผู้ดำเนินการหรือเหตุผลแยกว่าย้ายห้อง/นำออก/ลบห้อง จึงใช้คำว่า “สิ้นสุดการอยู่ห้อง” ชื่อห้องอ่านจากข้อมูลห้องที่มีอยู่ และปีการศึกษาใช้ค่าที่เก็บในรายการจัดห้อง หากแก้ข้อมูลเดิม ประวัติส่วนนี้อาจเปลี่ยนตาม ไม่ใช่ snapshot การแก้ไขทุกครั้ง
