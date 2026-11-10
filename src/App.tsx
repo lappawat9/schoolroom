@@ -23,7 +23,7 @@ export default function App() {
   const { pathname } = useLocation();
   const isClassroomPage = pathname.startsWith("/classrooms");
   const isDashboardPage = pathname === "/" || pathname.startsWith("/dashboard");
-  const title = isDashboardPage ? "ภาพรวมระบบ" : isClassroomPage ? "จัดการห้องเรียน" : "จัดการข้อมูลนักเรียน";
+  const title = isDashboardPage ? "Dashboard" : isClassroomPage ? "จัดการห้องเรียน" : "จัดการข้อมูลนักเรียน";
 
   return (
     <div className="app-shell">
