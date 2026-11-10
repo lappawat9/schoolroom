@@ -4,6 +4,7 @@ import { DataSource } from "typeorm";
 import { databaseOptions } from "./database/options";
 import { StudentModule } from "./students/student.module";
 import { ClassroomModule } from "./classrooms/classroom.module";
+import { ReportModule } from "./reports/report.module";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 @ApiTags("Health")
 @Controller("health")
@@ -21,6 +22,7 @@ class HealthController {
     TypeOrmModule.forRoot(databaseOptions()),
     StudentModule,
     ClassroomModule,
+    ReportModule,
   ],
   controllers: [HealthController],
 })

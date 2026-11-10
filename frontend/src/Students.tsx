@@ -22,6 +22,7 @@ import {
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { api, queryString } from "./api";
+import ReportDownload from "./ReportDownload";
 import { useRemote } from "./useRemote";
 import type { Lookups, Page, Student } from "./types";
 import {
@@ -125,17 +126,21 @@ export default function Students({ revision, onChange }: PageProps) {
           </h2>
           <p>ข้อมูลนักเรียนที่ใช้งานอยู่ในระบบ</p>
         </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => open(null)}
-          disabled={!lookups.data}
-        >
-          เพิ่มนักเรียน
-        </Button>
+        <Space wrap>
+          <ReportDownload />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => open(null)}
+            disabled={!lookups.data}
+          >
+            เพิ่มนักเรียน
+          </Button>
+        </Space>
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
       <Form
+        name="student-search"
         form={searchForm}
         className="filter-bar"
         layout="vertical"
@@ -292,6 +297,7 @@ export default function Students({ revision, onChange }: PageProps) {
           เลขประจำตัวสองหลักแรกคือปีที่เข้าเรียน เช่น 69001 หมายถึงปี 2569
         </p>
         <Form
+          name="student-editor"
           form={form}
           layout="vertical"
           onFinish={save}

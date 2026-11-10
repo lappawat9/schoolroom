@@ -9,6 +9,10 @@ export interface Classroom {
   gradeLevel: string;
   homeroomTeacherId: number | null;
 }
+export type StudentClassroom = Pick<
+  Classroom,
+  "id" | "roomNumber" | "name" | "academicYear"
+>;
 export interface Student {
   id: number;
   studentCode: string;
@@ -20,11 +24,11 @@ export interface Student {
   gradeLevel: string;
   enrollmentYear: number;
   classroomId: number | null;
-  classroom: Classroom | null;
+  classroom: StudentClassroom | null;
   prefixId: number;
   genderId: number;
   gradeLevelId: number;
-  classrooms: Classroom[];
+  classrooms: StudentClassroom[];
 }
 export interface Page<T> {
   data: T[];

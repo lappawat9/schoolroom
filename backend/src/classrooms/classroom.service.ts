@@ -51,7 +51,7 @@ export class ClassroomService {
       });
     if (query.name)
       qb.andWhere("classroom.name LIKE :name", { name: `%${query.name}%` });
-    if (query.teacherName)
+    if (query.teacherName) {
       qb.andWhere(
         `(teacher.firstName LIKE :teacher OR teacher.lastName LIKE :teacher
           OR CONCAT(teacher.firstName, teacher.lastName) LIKE :fullName
@@ -60,7 +60,23 @@ export class ClassroomService {
           teacher: `%${query.teacherName}%`,
           fullName: `%${query.teacherName.replace(/\s+/g, "")}%`,
         },
-      );
+      )
+        .addSelect(
+          `CASE
+            WHEN teacher.firstName LIKE :teacherStart
+              OR CONCAT(teacher.firstName, teacher.lastName) LIKE :teacherFullStart THEN 0
+            WHEN teacher.lastName LIKE :teacherStart THEN 1
+            WHEN CONCAT(COALESCE(prefix.name, ''), teacher.firstName, teacher.lastName) LIKE :teacherFullStart THEN 2
+            ELSE 3
+          END`,
+          "teacherPriority",
+        )
+        .setParameters({
+          teacherStart: `${query.teacherName}%`,
+          teacherFullStart: `${query.teacherName.replace(/\s+/g, "")}%`,
+        })
+        .orderBy("teacherPriority", "ASC");
+    }
 
     const total = await qb.getCount();
     const result = await qb
@@ -73,7 +89,7 @@ export class ClassroomService {
             .where("membership.classroomId = classroom.id"),
         "studentCount",
       )
-      .orderBy("classroom.academicYear", "DESC")
+      .addOrderBy("classroom.academicYear", "DESC")
       .addOrderBy("classroom.roomNumber", "ASC")
       .skip((query.page - 1) * query.pageSize)
       .take(query.pageSize)
