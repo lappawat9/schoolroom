@@ -132,6 +132,105 @@ h1 {
   margin: 8px 0 0;
   font-size: 13px;
 }
+.dashboard-toolbar,
+.dashboard-assignment-heading,
+.dashboard-assignment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dashboard-year,
+.list-scope-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dashboard-description,
+.dashboard-card p,
+.dashboard-assignment p,
+.dashboard-assignment-footer {
+  color: #7b8874;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.dashboard-description {
+  margin: 14px 0 22px;
+}
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.dashboard-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #e1e7dc;
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.dashboard-card:hover {
+  border-color: #9ab08c;
+  box-shadow: 0 4px 16px #233c220c;
+}
+.dashboard-card[aria-disabled="true"] {
+  opacity: .65;
+}
+.dashboard-card-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.dashboard-value {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 8px;
+}
+.dashboard-value strong {
+  color: #173f35;
+  font: 600 38px/1.4 "Segoe UI", sans-serif;
+}
+.dashboard-value span {
+  color: #7b8874;
+  font-size: 12px;
+}
+.dashboard-card p {
+  margin-bottom: 0;
+}
+.dashboard-assignment {
+  padding: 25px;
+  margin: 24px 0;
+}
+.dashboard-assignment-heading p {
+  margin-bottom: 18px;
+}
+.dashboard-assignment-footer {
+  margin-top: 12px;
+}
+.dashboard-assignment-footer a {
+  color: #326b50;
+  font-weight: 500;
+}
+.list-scope-bar {
+  margin: 0 25px 18px;
+}
+.list-scope-bar > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.list-scope-bar label {
+  font-size: 12px;
+  color: #6d7d66;
+}
+@media (max-width: 1000px) {
+  .dashboard-cards { grid-template-columns: 1fr; }
+}
 .refresh-button {
   background: transparent;
   border-color: #dce3d7;

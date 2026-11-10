@@ -10,6 +10,14 @@ const classroomFields = `
   homeroomTeacherId teacherName studentCount
 `;
 
+export const DASHBOARD = `
+  query Dashboard($academicYear: Int) {
+    result: dashboard(academicYear: $academicYear) {
+      academicYear academicYears totalStudents totalClassrooms assignedStudents unassignedStudents
+    }
+  }
+`;
+
 export const STUDENTS = `
   query Students($filter: StudentFilterInput) {
     result: students(filter: $filter) {

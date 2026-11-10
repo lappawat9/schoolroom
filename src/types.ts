@@ -9,6 +9,14 @@ export interface Classroom {
   gradeLevel: string;
   homeroomTeacherId: number | null;
 }
+export interface DashboardSummary {
+  academicYear: number;
+  academicYears: number[];
+  totalStudents: number;
+  totalClassrooms: number;
+  assignedStudents: number;
+  unassignedStudents: number;
+}
 export type StudentClassroom = Pick<
   Classroom,
   "id" | "roomNumber" | "name" | "academicYear"
