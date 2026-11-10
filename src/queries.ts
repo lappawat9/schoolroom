@@ -48,6 +48,14 @@ export const STUDENT_REPORT = `
   }
 `;
 
+export const STUDENT_CLASSROOM_HISTORY = `
+  query StudentClassroomHistory($studentId: Int!) {
+    result: studentClassroomHistory(studentId: $studentId) {
+      id classroomId roomNumber roomName academicYear addedAt endedAt classroomDeleted isActive
+    }
+  }
+`;
+
 export const CLASSROOM_STUDENTS = `
   query ClassroomStudents($classroomId: Int!, $filter: StudentFilterInput) {
     result: classroomStudents(classroomId: $classroomId, filter: $filter) {
