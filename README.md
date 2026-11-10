@@ -54,13 +54,15 @@ Backend ใช้ฐานข้อมูลที่มีตาราง `stud
 
 ## report
 
+กด **ดาวน์โหลดรายงาน** เพื่อดูตัวอย่างก่อนส่งออก มีวันที่ข้อมูล จำนวนนักเรียนไม่ซ้ำ จำนวนแถว และตารางแบ่งหน้า PDF และ Excel ใช้ข้อมูลชุดเดียวกับตัวอย่าง หากต้องการข้อมูลล่าสุดให้กด **โหลดข้อมูลรายงานใหม่**
+
 ปุ่ม **ดาวน์โหลดรายงาน** บนหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
 
 ## GraphQL
 
 Frontend ส่ง Query / Mutation จาก `frontend/src/queries.ts` ผ่าน `api.ts` ไปที่ `/api/graphql` ฝั่ง Backend ใช้ Resolver แยกนักเรียนกับห้องเรียน แล้วเรียก Service และ TypeORM เพื่อจัดการ MySQL
 
-- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`
+- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`, `studentClassroomHistory`
 - Mutation: `createStudent`, `updateStudent`, `deleteStudent`, `createClassroom`, `updateClassroom`, `deleteClassroom`, `assignStudent`, `removeStudentFromClassroom`
 - `students` และ `classrooms` รับ `filter` ซึ่งรวม `page` และ `pageSize` ไว้ด้วย
 - ข้อผิดพลาดอ่านจาก `errors` ใน response แม้ HTTP status เป็น 200
@@ -91,3 +93,10 @@ branch `rest-main`, `rest-front`, `rest-back` เป็นรุ่น REST ท�
 เก็บโค้ด ไว้ที่ branch `rest-main`, `rest-front` และ `rest-back` สามารถเปิดอ่านหรือ clone แยกมารันได้ โดยใช้ฐานข้อมูลโครงสร้างเดิม
 
 `git fetch origin` ก่อนคืนโค้ด ใน branch `front` ใช้ `git restore --source origin/rest-front --staged --worktree .` แล้ว commit ส่วน branch `back` ใช้ `origin/rest-back` และ branch `main` ใช้ `origin/rest-main` วิธีนี้คืนไฟล์ทั้งชุด รวม module และ dependencies โดยเก็บประวัติเดิมไว้ จากนั้นรัน `npm ci` และ build ใหม่ ใช้ Frontend/Backend รุ่นเดียวกัน ตั้ง `VITE_API_URL=https://schoolroom-api.vercel.app/api` ก่อน build Frontend และ deploy ทั้งสองฝั่งอีกครั้ง
+
+
+## ประวัติห้องเรียน
+
+กดชื่อนักเรียนหรือปุ่มประวัติเพื่อดูรายการจัดห้องแยกตามปีการศึกษา แสดงวันที่เพิ่ม วันที่สิ้นสุด สถานะปัจจุบัน และห้องที่ถูกลบ โดยอ่านทั้งรายการปกติและ soft delete จาก classroom_students
+
+ประวัติแสดงเท่าที่ฐานข้อมูลเก็บไว้ ไม่มีข้อมูลผู้ดำเนินการหรือเหตุผลแยกว่าย้ายห้อง/นำออก/ลบห้อง จึงใช้คำว่า “สิ้นสุดการอยู่ห้อง” ชื่อห้องอ่านจากข้อมูลห้องที่มีอยู่ และปีการศึกษาใช้ค่าที่เก็บในรายการจัดห้อง หากแก้ข้อมูลเดิม ประวัติส่วนนี้อาจเปลี่ยนตาม ไม่ใช่ snapshot การแก้ไขทุกครั้ง
