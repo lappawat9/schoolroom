@@ -117,6 +117,7 @@ export default function Classrooms({ revision, onChange }: PageProps) {
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
       <Form
+        name="classroom-search"
         form={searchForm}
         className="filter-bar"
         layout="vertical"
@@ -272,6 +273,7 @@ export default function Classrooms({ revision, onChange }: PageProps) {
           เลขห้องต้องไม่ซ้ำกันในปีการศึกษาเดียวกัน
         </p>
         <Form
+          name="classroom-editor"
           form={form}
           layout="vertical"
           onFinish={save}
