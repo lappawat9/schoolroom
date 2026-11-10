@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   App,
   Button,
@@ -48,6 +49,9 @@ import {
 
 export default function Classrooms({ revision, onChange }: PageProps) {
   const { message } = App.useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const year = Number(searchParams.get("academicYear"));
+  const academicYear = Number.isInteger(year) && year >= 2400 && year <= 3000 ? year : undefined;
   const [filters, setFilters] = useState({
     roomNumber: "",
     name: "",
@@ -56,9 +60,10 @@ export default function Classrooms({ revision, onChange }: PageProps) {
   const [searchForm] = Form.useForm();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  useEffect(() => setPage(1), [academicYear]);
   const result = useRemote<Page<Classroom>>(
     CLASSROOMS,
-    { filter: { ...filters, page, pageSize } },
+    { filter: { ...filters, academicYear, page, pageSize } },
     revision,
   );
   const lookups = useRemote<Lookups>(LOOKUPS);
@@ -130,6 +135,12 @@ export default function Classrooms({ revision, onChange }: PageProps) {
         </Button>
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
+      <div className="list-scope-bar"><div><label htmlFor="classroom-year">ปีการศึกษา</label>
+        <InputNumber id="classroom-year" value={academicYear} placeholder="ทุกปี" min={2400} max={3000} precision={0}
+          onChange={(value) => { const next = new URLSearchParams(searchParams);
+            if (value !== null) next.set("academicYear", String(value)); else next.delete("academicYear");
+            setSearchParams(next); setPage(1);
+          }} /></div></div>
       <Form
         name="classroom-search"
         form={searchForm}

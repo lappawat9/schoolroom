@@ -51,6 +51,13 @@ export class UpdateClassroomInput extends PartialType(CreateClassroomInput, {
 
 @InputType()
 export class ClassroomFilterInput extends PaginationInput {
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(2400)
+  @Max(3000)
+  academicYear?: number;
+
   @Field({ nullable: true })
   @IsOptional()
   @Trim()

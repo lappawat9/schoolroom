@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import {
   BookOutlined,
+  DashboardOutlined,
   TeamOutlined,
   ReadOutlined,
   ReloadOutlined,
@@ -15,18 +16,20 @@ import {
 import { Button, Tooltip } from "antd";
 import Students from "./Students";
 import Classrooms from "./Classrooms";
+import Dashboard from "./Dashboard";
 
 export default function App() {
   const [revision, setRevision] = useState(0);
   const refresh = () => setRevision((value) => value + 1);
   const { pathname } = useLocation();
   const isClassroomPage = pathname.startsWith("/classrooms");
-  const title = isClassroomPage ? "จัดการห้องเรียน" : "จัดการข้อมูลนักเรียน";
+  const isDashboardPage = pathname === "/" || pathname.startsWith("/dashboard");
+  const title = isDashboardPage ? "ภาพรวมระบบ" : isClassroomPage ? "จัดการห้องเรียน" : "จัดการข้อมูลนักเรียน";
 
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <NavLink to="/students" className="brand">
+        <NavLink to="/dashboard" className="brand">
           <span className="brand-icon">
             <ReadOutlined />
           </span>
@@ -34,6 +37,7 @@ export default function App() {
         </NavLink>
         <div className="nav-caption">เมนูจัดการ</div>
         <nav aria-label="เมนูหลัก">
+          <NavLink to="/dashboard"><DashboardOutlined /><span>ภาพรวม</span></NavLink>
           <NavLink to="/students">
             <TeamOutlined />
             <span>ข้อมูลนักเรียน</span>
@@ -50,7 +54,7 @@ export default function App() {
             <div>
               <h1>{title}</h1>
               <p>
-                {isClassroomPage
+                {isDashboardPage ? "สรุปนักเรียน ห้องเรียน และการจัดห้องตามปีการศึกษา" : isClassroomPage
                   ? "ข้อมูลห้องเรียน ครูประจำชั้น และรายชื่อนักเรียนในห้อง"
                   : "เพิ่ม แก้ไข และค้นหาข้อมูลนักเรียน"}
               </p>
@@ -65,6 +69,7 @@ export default function App() {
             </Tooltip>
           </div>
           <Routes>
+            <Route path="/dashboard" element={<Dashboard revision={revision} />} />
             <Route
               path="/students"
               element={<Students revision={revision} onChange={refresh} />}
@@ -73,7 +78,7 @@ export default function App() {
               path="/classrooms"
               element={<Classrooms revision={revision} onChange={refresh} />}
             />
-            <Route path="*" element={<Navigate to="/students" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
       </div>

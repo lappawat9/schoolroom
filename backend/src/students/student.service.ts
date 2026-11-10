@@ -7,6 +7,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, IsNull, Repository } from "typeorm";
 import { ClassroomStudent } from "../classrooms/classroom-student.entity.js";
 import { LookupService } from "../common/lookup.service.js";
+import { activeStudentAssignment } from "../common/student-assignment.js";
 import { handleDatabaseError } from "../database/handle-database-error.js";
 import {
   CreateStudentInput,
@@ -62,13 +63,23 @@ export class StudentService {
     if (classroomId)
       qb.andWhere("membership.classroomId = :classroomId", { classroomId });
 
+    let academicYear = query.academicYear ?? undefined;
+    if (typeof query.unassigned === "boolean") {
+      if (academicYear === undefined) {
+        const [{ year }] = await this.students.query("SELECT YEAR(CURDATE()) + 543 AS year");
+        academicYear = Number(year);
+      }
+      qb.andWhere(`${query.unassigned ? "NOT EXISTS" : "EXISTS"} (${activeStudentAssignment})`,
+        { assignmentYear: academicYear });
+    }
+
     const [students, total] = await qb
       .addOrderBy("student.studentCode", "ASC")
       .skip((query.page - 1) * query.pageSize)
       .take(query.pageSize)
       .getManyAndCount();
     return {
-      data: students.map((student) => this.toResponse(student)),
+      data: students.map((student) => this.toResponse(student, academicYear)),
       total,
       page: query.page,
       pageSize: query.pageSize,
@@ -173,12 +184,14 @@ export class StudentService {
     }
   }
 
-  private toResponse(student: Student) {
+  private toResponse(student: Student, academicYear?: number) {
     const { memberships = [], prefix, gender, gradeLevel, ...data } = student;
     const rooms = memberships
       .filter((item) => item.classroom)
       .sort((a, b) => b.academicYear - a.academicYear || b.id - a.id);
-    const classroom = rooms[0]?.classroom ?? null;
+    const classroom = (academicYear === undefined ? rooms[0]
+      : rooms.find((room) => room.academicYear === academicYear &&
+        room.classroom.academicYear === academicYear))?.classroom ?? null;
     return {
       ...data,
       prefix: prefix?.name ?? "",

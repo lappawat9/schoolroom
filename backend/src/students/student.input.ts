@@ -1,10 +1,12 @@
 import { Field, InputType, Int, PartialType } from "@nestjs/graphql";
 import {
   IsDateString,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
   Matches,
+  Max,
   MaxLength,
   Min,
   MinLength,
@@ -63,6 +65,18 @@ export class UpdateStudentInput extends PartialType(CreateStudentInput, {
 
 @InputType()
 export class StudentFilterInput extends PaginationInput {
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(2400)
+  @Max(3000)
+  academicYear?: number;
+
+  @Field({ nullable: true, description: "true = ยังไม่จัดห้อง, false = จัดห้องแล้ว ในปีที่เลือก" })
+  @IsOptional()
+  @IsBoolean()
+  unassigned?: boolean;
+
   @Field({ nullable: true })
   @IsOptional()
   @Trim()
