@@ -3,7 +3,7 @@
 - เปิดเว็บ Schoolroom(https://schoolroom-web.vercel.app)
 - [ดู schema และทดลอง GraphQL ผ่าน GraphiQL](https://schoolroom-api.vercel.app/api/graphql)
 
-เว็บไซต์ออนไลน์ใช้ GraphQL แล้ว โดย Frontend และ Backend deploy แยกโปรเจกต์บน Vercel
+โดย Frontend และ Backend deploy แยกโปรเจกต์บน Vercel
 
 ## โค้ดแต่ละส่วน
 
@@ -28,7 +28,7 @@
 
 Backend:
 
-```powershell
+```cmd
 cd backend
 npm ci
 npm run dev
@@ -36,7 +36,7 @@ npm run dev
 
 Frontend (อีก terminal):
 
-```powershell
+```cmd
 cd frontend
 npm ci
 npm run dev
@@ -52,7 +52,7 @@ Backend ใช้ฐานข้อมูลที่มีตาราง `stud
 
 นักเรียนอยู่ได้หนึ่งห้องต่อปีการศึกษา การลบใช้ soft delete และการเปลี่ยนปีของห้องจะปรับปีในรายการจัดห้องด้วย หากชนกับห้องอื่นของนักเรียนในปีเดียวกัน GraphQL จะคืน error รหัส `CONFLICT` เพื่อให้จัดห้องก่อน
 
-## ดาวน์โหลดรายงาน
+## report
 
 ปุ่ม **ดาวน์โหลดรายงาน** บนหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
 
@@ -88,6 +88,6 @@ query {
 
 branch `rest-main`, `rest-front`, `rest-back` เป็นรุ่น REST ที่รองรับฟังก์ชันล่าสุด รวมการเรียงผลค้นหาและดาวน์โหลด PDF/Excel ส่วน snapshot REST ดั้งเดิมเก็บไว้ที่ tag `rest-baseline-main`, `rest-baseline-front`, `rest-baseline-back`
 
-เก็บโค้ดก่อนเปลี่ยนเป็น GraphQL ไว้ที่ branch `rest-main`, `rest-front` และ `rest-back` สามารถเปิดอ่านหรือ clone แยกมารันได้ โดยใช้ฐานข้อมูลโครงสร้างเดิม
+เก็บโค้ด ไว้ที่ branch `rest-main`, `rest-front` และ `rest-back` สามารถเปิดอ่านหรือ clone แยกมารันได้ โดยใช้ฐานข้อมูลโครงสร้างเดิม
 
-เก็บงานปัจจุบันให้เรียบร้อยและ `git fetch origin` ก่อนคืนโค้ด ใน branch `front` ใช้ `git restore --source origin/rest-front --staged --worktree .` แล้ว commit ส่วน branch `back` ใช้ `origin/rest-back` และ branch `main` ใช้ `origin/rest-main` วิธีนี้คืนไฟล์ทั้งชุด รวม module และ dependencies โดยเก็บประวัติเดิมไว้ จากนั้นรัน `npm ci` และ build ใหม่ ใช้ Frontend/Backend รุ่นเดียวกัน ตั้ง `VITE_API_URL=https://schoolroom-api.vercel.app/api` ก่อน build Frontend และ deploy ทั้งสองฝั่งอีกครั้ง
+`git fetch origin` ก่อนคืนโค้ด ใน branch `front` ใช้ `git restore --source origin/rest-front --staged --worktree .` แล้ว commit ส่วน branch `back` ใช้ `origin/rest-back` และ branch `main` ใช้ `origin/rest-main` วิธีนี้คืนไฟล์ทั้งชุด รวม module และ dependencies โดยเก็บประวัติเดิมไว้ จากนั้นรัน `npm ci` และ build ใหม่ ใช้ Frontend/Backend รุ่นเดียวกัน ตั้ง `VITE_API_URL=https://schoolroom-api.vercel.app/api` ก่อน build Frontend และ deploy ทั้งสองฝั่งอีกครั้ง
