@@ -48,22 +48,11 @@ a {
   letter-spacing: -1px;
 }
 .brand-icon {
-  width: 41px;
-  height: 45px;
-  border: 1px solid #648073;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  display: grid;
-  place-items: center;
-  font-size: 26px;
-  color: #c9df91;
-}
-.brand span:not(.brand-icon) {
   display: block;
-  font-size: 8px;
-  color: #b7c8bd;
-  letter-spacing: 1.7px;
-  margin-top: 7px;
-  font-weight: 400;
+  flex-shrink: 0;
 }
 .nav-caption {
   font-size: 11px;
