@@ -1,7 +1,9 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import {
   IsDateString,
+  IsBoolean,
+  Max,
   IsInt,
   IsOptional,
   IsString,
@@ -84,6 +86,20 @@ export class UpdateStudentDto extends PartialType(CreateStudentDto, {
 }) {}
 
 export class StudentQueryDto extends PaginationDto {
+  @ApiPropertyOptional({ type: Number, minimum: 2400, maximum: 3000, description: "ปีการศึกษา พ.ศ." })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(2400)
+  @Max(3000)
+  academicYear?: number;
+
+  @ApiPropertyOptional({ type: Boolean, description: "true = ยังไม่จัดห้อง, false = จัดห้องแล้ว ในปีที่เลือก" })
+  @IsOptional()
+  @Transform(({ value }) => value === "true" ? true : value === "false" ? false : value)
+  @IsBoolean()
+  unassigned?: boolean;
+
   @ApiPropertyOptional({
     example: "69",
     description: "ค้นหาบางส่วนของเลขประจำตัว",

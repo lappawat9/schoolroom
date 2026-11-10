@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
 import {
   IsInt,
@@ -67,6 +68,14 @@ export class UpdateClassroomDto extends PartialType(CreateClassroomDto, {
 }) {}
 
 export class ClassroomQueryDto extends PaginationDto {
+  @ApiPropertyOptional({ type: Number, minimum: 2400, maximum: 3000, description: "ปีการศึกษา พ.ศ." })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(2400)
+  @Max(3000)
+  academicYear?: number;
+
   @ApiPropertyOptional({
     example: "11",
     maxLength: 20,

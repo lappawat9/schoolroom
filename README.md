@@ -21,6 +21,7 @@ npm run dev
 | การทำงาน | Endpoint |
 | --- | --- |
 | ตรวจระบบและฐานข้อมูล | GET /api/health |
+| สรุปภาพรวมตามปี | GET /api/dashboard?academicYear=2569 |
 | ข้อมูลอ้างอิง | GET /api/lookups |
 | ค้นหา / เพิ่มนักเรียน | GET / POST /api/students |
 | ดู / แก้ไข / ลบนักเรียน | GET / PATCH / DELETE /api/students/:id |
@@ -31,7 +32,7 @@ npm run dev
 | ประวัติห้องเรียนของนักเรียน | GET /api/students/:id/classroom-history |
 | รายงานอายุ 10-12 ปี | GET /api/reports/students |
 
-GET students รองรับ studentCode, name, gradeLevelId, page และ pageSize ส่วน GET classrooms รองรับ roomNumber, name, teacherName, page และ pageSize โดย pageSize สูงสุด 100 ข้อผิดพลาดใช้ HTTP status 400/404/409 ตามกรณี
+GET students รองรับ studentCode, name, gradeLevelId, academicYear, unassigned, page และ pageSize ส่วน GET classrooms รองรับ roomNumber, name, teacherName, academicYear, page และ pageSize โดย pageSize สูงสุด 100 ข้อผิดพลาดใช้ HTTP status 400/404/409 ตามกรณี
 
 Controller และ Service ของ students/classrooms/reports แยกไฟล์กัน การลบเป็น soft delete และการจัดห้องใช้ transaction เพื่อให้เหลือหนึ่งห้องต่อปีการศึกษา
 
@@ -43,7 +44,7 @@ Controller และ Service ของ students/classrooms/reports แยกไ�
 
 ## รายงาน
 
-ปุ่ม **ดาวน์โหลดรายงาน** อยู่บนหน้านักเรียน เลือก PDF หรือ Excel ได้ รายงานดึงทุกแถวตามเงื่อนไขอายุ 10-12 ปีจากฐานข้อมูล ไม่จำกัดตามตัวกรองหรือหน้าตารางที่กำลังเปิด นักเรียนหนึ่งคนอาจมีหลายแถวตามปีการศึกษา ส่วนคนที่ไม่มีห้องจะแสดงช่องห้องว่าง
+ปุ่ม **ดาวน์โหลดรายงาน** อยู่บนหน้าภาพรวมและหน้านักเรียน เลือก PDF หรือ Excel ได้ รายงานดึงทุกแถวตามเงื่อนไขอายุ 10-12 ปีจากฐานข้อมูล ไม่จำกัดตามตัวกรองหรือหน้าตารางที่กำลังเปิด นักเรียนหนึ่งคนอาจมีหลายแถวตามปีการศึกษา ส่วนคนที่ไม่มีห้องจะแสดงช่องห้องว่าง
 
 Frontend เรียก `GET /api/reports/students` แล้วสร้างไฟล์ในเบราว์เซอร์ด้วย report-pdf.ts และ report-excel.ts วันที่ asOfDate มาจาก MySQL และใช้วันที่เดียวกันคำนวณอายุ PDF ใช้ฟอนต์ Sarabun พร้อมใบอนุญาต OFL ใน public/fonts
 
@@ -74,3 +75,13 @@ npm start
 REST endpoint สำหรับประวัติคือ `GET /api/students/:id/classroom-history` มี response schema ใน Swagger
 
 ประวัติแสดงเท่าที่ฐานข้อมูลเก็บไว้ ไม่มีข้อมูลผู้ดำเนินการหรือเหตุผลแยกว่าย้ายห้อง/นำออก/ลบห้อง จึงใช้คำว่า “สิ้นสุดการอยู่ห้อง” ชื่อห้องอ่านจากข้อมูลห้องที่มีอยู่ และปีการศึกษาใช้ค่าที่เก็บในรายการจัดห้อง หากแก้ข้อมูลเดิม ประวัติส่วนนี้อาจเปลี่ยนตาม ไม่ใช่ snapshot การแก้ไขทุกครั้ง
+
+## ภาพรวมระบบ
+
+หน้าแรก /dashboard แสดงจำนวนนักเรียนทั้งหมด ห้องเรียน และนักเรียนที่ยังไม่จัดห้อง พร้อมเลือกปีการศึกษาและกดการ์ดเพื่อเปิดรายชื่อที่ตรงกับตัวเลข มีสัดส่วนการจัดห้องและปุ่มเปิดตัวอย่างรายงานด้วย
+
+ยอดนักเรียนทั้งหมดนับเฉพาะคนที่ยังใช้งานอยู่ในปัจจุบัน ส่วนห้องเรียนและสถานะจัดห้องอิงปีที่เลือก ไม่ใช่ยอดนักเรียนย้อนหลัง คนที่มีห้องเฉพาะปีอื่นยังถือว่ายังไม่จัดห้องในปีที่เลือก ห้องและรายการจัดห้องที่ถูก soft delete ไม่นับรวม ปีเริ่มต้นใช้ปี พ.ศ. ปัจจุบันจาก MySQL
+
+หน้านักเรียนเลือกปีและกรองได้ทั้งทั้งหมด / จัดห้องแล้ว / ยังไม่จัดห้อง คอลัมน์ห้องเรียนแสดงห้องในปีที่เลือก หน้าห้องเรียนกรองปีได้หรือเว้นว่างเพื่อดูทุกปี URL เก็บปีและสถานะจัดห้องไว้ จึงโหลดหน้าใหม่หรือส่งลิงก์ต่อได้
+
+`GET /api/dashboard?academicYear=2569` คืน `academicYear`, `academicYears`, `totalStudents`, `totalClassrooms`, `assignedStudents` และ `unassignedStudents` หากไม่ส่งปีใช้ `GET /api/dashboard` หน้านักเรียนใช้ `GET /api/students?academicYear=2569&unassigned=true` (false = จัดห้องแล้ว) ห้องเรียนใช้ `GET /api/classrooms?academicYear=2569` ทุกปีรับจำนวนเต็ม พ.ศ. 2400–3000 มีคำอธิบายใน Swagger
