@@ -35,7 +35,7 @@ API และหน้า GraphiQL อยู่ที่ http://localhost:3000/a
 
 ## Query และ Mutation
 
-- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`
+- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`
 - Mutation นักเรียน: `createStudent`, `updateStudent`, `deleteStudent`
 - Mutation ห้องเรียน: `createClassroom`, `updateClassroom`, `deleteClassroom`
 - Mutation จัดห้อง: `assignStudent`, `removeStudentFromClassroom`
@@ -91,6 +91,21 @@ mutation CreateStudent($input: CreateStudentInput!) {
 
 Resolver แยกใน `students/student.resolver.ts` และ `classrooms/classroom.resolver.ts` ทำหน้าที่รับคำขอและเรียก Service ส่วน `*.input.ts` ตรวจข้อมูลเข้า และ `*.model.ts` กำหนดข้อมูลที่ขอผ่าน GraphQL ได้ Schema สร้างในหน่วยความจำด้วย `autoSchemaFile: true` จึงไม่ต้องเขียนไฟล์ระหว่างรันบน Vercel
 รายงาน SQL นักเรียนอายุ 10–12 ปีพร้อมห้องที่ยังใช้งานอยู่ทุกปีการศึกษาอยู่ใน [Report.sql](Report.sql)
+
+## รายงานนักเรียน
+
+ปุ่ม **ดาวน์โหลดรายงาน** บนหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
+
+`reports/report.resolver.ts` รับ Query และเรียก `ReportService.studentReport()` อ่านข้อมูลด้วย SQL เงื่อนไขเดียวกับ `Report.sql` โดยใช้วันที่จาก MySQL ชุดเดียวกัน ข้อมูลส่งผ่าน GraphQL ให้ Frontend สร้างไฟล์ จึงไม่มี endpoint ดาวน์โหลด REST เพิ่ม
+
+```graphql
+query {
+  studentReport {
+    asOfDate
+    rows { studentCode fullName gender age roomNumber roomName academicYear }
+  }
+}
+```
 
 ## ตรวจสอบและ deploy
 

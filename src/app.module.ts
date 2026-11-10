@@ -7,6 +7,7 @@ import { databaseOptions } from "./database/options.js";
 import { StudentModule } from "./students/student.module.js";
 import { ClassroomModule } from "./classrooms/classroom.module.js";
 import { formatGraphQLError } from "./common/graphql-error.js";
+import { ReportModule } from "./reports/report.module.js";
 @Resolver()
 class HealthResolver {
   constructor(private readonly dataSource: DataSource) {}
@@ -32,6 +33,7 @@ class HealthResolver {
     }),
     StudentModule,
     ClassroomModule,
+    ReportModule,
   ],
   providers: [HealthResolver],
 })
