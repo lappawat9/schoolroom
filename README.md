@@ -1,63 +1,64 @@
-# Schoolroom · Backend
+# Schoolroom · REST Backend
 
-REST API ของโปรเจกต์ส่วนตัว Schoolroom สำหรับจัดการนักเรียนและห้องเรียน ใช้ **NestJS + TypeORM + MySQL + TypeScript**
-
-- [Swagger สำหรับดูและทดลอง API](https://schoolroom-api.vercel.app/api/docs)
-- [OpenAPI JSON](https://schoolroom-api.vercel.app/api/docs-json)
-- [Frontend](https://schoolroom-web.vercel.app)
-- [โค้ด Frontend](https://github.com/lappawat9/schoolroom/tree/front)
-- [ภาพรวมโปรเจกต์](https://github.com/lappawat9/schoolroom)
+REST API ของโปรเจกต์ส่วนตัว Schoolroom ใช้ NestJS + TypeORM + MySQL + TypeScript ใช้คู่กับ Frontend ใน branch [rest-front](https://github.com/lappawat9/schoolroom/tree/rest-front)
 
 ## เริ่มพัฒนา
 
-ใช้ Node.js 24.x, npm 11 ขึ้นไป และ MySQL
-
 ```powershell
-git clone --branch back --single-branch https://github.com/lappawat9/schoolroom.git schoolroom-back
-cd schoolroom-back
+git clone --branch rest-back --single-branch https://github.com/lappawat9/schoolroom.git schoolroom-rest-back
+cd schoolroom-rest-back
 npm ci
 Copy-Item .env.example .env
-```
-
-ใส่ค่าการเชื่อมต่อของคุณใน `.env`: `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`, `DB_SSL` และ `DB_POOL_SIZE`
-ตั้ง `FRONTEND_ORIGIN` ให้ตรงกับ origin ของเว็บ หลายค่าคั่นด้วย comma
-
-Backend เชื่อม schema ที่มีตาราง `students`, `classrooms`, `classroom_students`, `teachers`, `master_prefix`, `master_gender` และ `grade_levels` พร้อมข้อมูลอ้างอิงสำหรับ dropdown โดยปิด `synchronize` ไว้
-
-```powershell
 npm run dev
 ```
 
-API อยู่ที่ http://localhost:3000/api และ Swagger อยู่ที่ http://localhost:3000/api/docs
-หาก PowerShell บล็อก `npm.ps1` ใช้ `npm.cmd` แทน `npm`
+ใช้ Node.js 24.x ตั้ง DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_DATABASE, DB_SSL, DB_POOL_SIZE และ FRONTEND_ORIGIN ตาม .env.example โดยไม่ commit ค่าจริง
 
-## API และข้อมูล
+## API
 
-- `/api/students`: จัดการนักเรียน ค้นหาด้วย `studentCode`, `name`, `gradeLevelId`
-- `/api/classrooms`: จัดการห้อง ค้นหาด้วย `roomNumber`, `name`, `teacherName`
-- `/api/classrooms/:id/students/:studentId`: เพิ่มหรือย้ายเข้าห้องด้วย PUT และนำออกด้วย DELETE
-- `/api/lookups`: ตัวเลือกคำนำหน้า เพศ ระดับชั้น และครู
-- `/api/health`: ตรวจการเชื่อมต่อ
+เปิด Swagger http://localhost:3000/api/docs เพื่อทดลองทุก endpoint หรือดู OpenAPI JSON ที่ http://localhost:3000/api/docs-json
 
-นักเรียนอยู่ได้หนึ่งห้องต่อปีการศึกษา ใช้ soft delete เพื่อเก็บประวัติ หากเปลี่ยนปีของห้องแล้วชนกับห้องอื่นของนักเรียนในปีเดียวกัน API จะตอบ 409
-รายงาน SQL นักเรียนอายุ 10–12 ปีพร้อมห้องที่ยังใช้งานอยู่ทุกปีการศึกษาอยู่ใน [Report.sql](Report.sql)
+| การทำงาน | Endpoint |
+| --- | --- |
+| ตรวจระบบและฐานข้อมูล | GET /api/health |
+| ข้อมูลอ้างอิง | GET /api/lookups |
+| ค้นหา / เพิ่มนักเรียน | GET / POST /api/students |
+| ดู / แก้ไข / ลบนักเรียน | GET / PATCH / DELETE /api/students/:id |
+| ค้นหา / เพิ่มห้อง | GET / POST /api/classrooms |
+| ดู / แก้ไข / ลบห้อง | GET / PATCH / DELETE /api/classrooms/:id |
+| นักเรียนในห้อง | GET /api/classrooms/:id/students |
+| เพิ่มหรือย้ายเข้าห้อง / นำออก | PUT / DELETE /api/classrooms/:id/students/:studentId |
+| รายงานอายุ 10-12 ปี | GET /api/reports/students |
 
-## ตรวจสอบและ deploy
+GET students รองรับ studentCode, name, gradeLevelId, page และ pageSize ส่วน GET classrooms รองรับ roomNumber, name, teacherName, page และ pageSize โดย pageSize สูงสุด 100 ข้อผิดพลาดใช้ HTTP status 400/404/409 ตามกรณี
+
+Controller และ Service ของ students/classrooms/reports แยกไฟล์กัน การลบเป็น soft delete และการจัดห้องใช้ transaction เพื่อให้เหลือหนึ่งห้องต่อปีการศึกษา
+
+- เพิ่ม แก้ไข ลบ ค้นหานักเรียนและห้องเรียน พร้อมแบ่งหน้า
+- ค้นชื่อเรียงชื่อที่ขึ้นต้นคำค้นก่อน ตามด้วยนามสกุลที่ขึ้นต้นและข้อความที่มีคำค้นอยู่ข้างใน รองรับครูและสมาชิกในห้องด้วย
+- จัดนักเรียนเข้าห้อง ย้ายห้อง นำออก และเก็บประวัติแยกปีการศึกษา
+- ตรวจข้อมูลซ้ำ วันเกิด และการเปลี่ยนปีของห้องที่ทำให้นักเรียนมีสองห้องในปีเดียวกัน
+- ดาวน์โหลดรายงานนักเรียนอายุ 10-12 ปีเป็น PDF ภาษาไทยและ Excel (.xlsx) ตามเงื่อนไขใน Report.sql
+
+## รายงาน
+
+ปุ่ม **ดาวน์โหลดรายงาน** อยู่บนหน้านักเรียน เลือก PDF หรือ Excel ได้ รายงานดึงทุกแถวตามเงื่อนไขอายุ 10-12 ปีจากฐานข้อมูล ไม่จำกัดตามตัวกรองหรือหน้าตารางที่กำลังเปิด นักเรียนหนึ่งคนอาจมีหลายแถวตามปีการศึกษา ส่วนคนที่ไม่มีห้องจะแสดงช่องห้องว่าง
+
+Frontend เรียก `GET /api/reports/students` แล้วสร้างไฟล์ในเบราว์เซอร์ด้วย report-pdf.ts และ report-excel.ts วันที่ asOfDate มาจาก MySQL และใช้วันที่เดียวกันคำนวณอายุ PDF ใช้ฟอนต์ Sarabun พร้อมใบอนุญาต OFL ใน public/fonts
+
+ReportService ใช้ SQL เงื่อนไขเดียวกับ Report.sql คืน {asOfDate, rows} แต่ละแถวมี studentCode, fullName, gender, age, roomNumber, roomName และ academicYear โดยข้อมูลห้องเป็น null ได้
+
+## Build และ deploy
 
 ```powershell
 npm run build
 npm start
 ```
 
-Vercel ใช้ branch `back`, Root Directory เป็น root ของ branch และ Framework เป็น NestJS โดยมี entrypoint ที่ `src/main.ts`
-ตั้ง environment variables บน Vercel แยกจาก `.env` ในเครื่อง
+ใช้ Node.js 24.x บน Vercel แยกสองโปรเจกต์ โดยเลือก branch rest-front สำหรับ Vite และ rest-back สำหรับ NestJS ทั้งคู่ใช้ Root Directory เป็น root ของ branch
 
-## Push การเปลี่ยนแปลง
+ตั้ง DB_* และ FRONTEND_ORIGIN บน Backend แล้วตั้ง VITE_API_URL ของ Frontend เป็น `https://<backend-domain>/api` ก่อน build โดยยังใช้ฐานข้อมูล schema เดิมและปิด synchronize ไว้
 
-```powershell
-git add .
-git commit -m "Update classroom API"
-git push origin back
-```
+เว็บที่ schoolroom-web.vercel.app ปัจจุบันใช้ GraphQL สามารถ deploy รุ่น REST คู่นี้ไปโดเมนของคุณ หรือสลับทั้งสองโปรเจกต์กลับเป็น REST พร้อมเปลี่ยน env ให้ตรงรุ่นได้ โค้ด GraphQL อยู่ที่ main/front/back ส่วน REST ดั้งเดิมก่อนเพิ่มรายงานและการเรียงค้นหาเก็บไว้ที่ tag rest-baseline-main, rest-baseline-front, rest-baseline-back
 
-branch นี้มีเฉพาะ Backend สำหรับการเปลี่ยนแปลงหน้าเว็บให้ใช้ branch `front`
+เมื่อแก้ Backend ให้ commit และ push ด้วย git push origin rest-back

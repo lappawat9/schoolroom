@@ -39,11 +39,22 @@ export class StudentService {
       qb.andWhere("student.studentCode LIKE :code", {
         code: `%${query.studentCode}%`,
       });
-    if (query.name)
+    if (query.name) {
       qb.andWhere(
         "(student.firstName LIKE :name OR student.lastName LIKE :name)",
         { name: `%${query.name}%` },
-      );
+      )
+        .addSelect(
+          `CASE
+            WHEN student.firstName LIKE :nameStart THEN 0
+            WHEN student.lastName LIKE :nameStart THEN 1
+            ELSE 2
+          END`,
+          "namePriority",
+        )
+        .setParameter("nameStart", `${query.name}%`)
+        .orderBy("namePriority", "ASC");
+    }
     if (query.gradeLevelId)
       qb.andWhere("student.gradeLevelId = :gradeId", {
         gradeId: query.gradeLevelId,
@@ -52,7 +63,7 @@ export class StudentService {
       qb.andWhere("membership.classroomId = :classroomId", { classroomId });
 
     const [students, total] = await qb
-      .orderBy("student.studentCode", "ASC")
+      .addOrderBy("student.studentCode", "ASC")
       .skip((query.page - 1) * query.pageSize)
       .take(query.pageSize)
       .getManyAndCount();
