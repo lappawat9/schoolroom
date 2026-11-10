@@ -31,6 +31,12 @@ npm run dev
 
 หน้าเว็บเรียก GraphQL ผ่าน `src/api.ts` โดยส่ง query และ variables เป็น JSON ไปที่ endpoint เดียว คำสั่งอ่านและแก้ไขข้อมูลอยู่ใน `src/queries.ts` ส่วน `useRemote` โหลดใหม่เมื่อ variables หรือ revision เปลี่ยน และแสดงข้อผิดพลาดจาก GraphQL แม้ HTTP status เป็น 200
 
+## ดาวน์โหลดรายงาน
+
+ปุ่ม **ดาวน์โหลดรายงาน** บนหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
+
+ไฟล์สร้างในเบราว์เซอร์ด้วย `report-pdf.ts` และ `report-excel.ts` โดยโหลดไลบรารีเฉพาะเมื่อเลือกดาวน์โหลด PDF ฝังฟอนต์ Sarabun จาก `public/fonts` พร้อมใบอนุญาต OFL; ไฟล์ฟอนต์ต้องเข้าถึงได้โดยไม่ถูก SPA rewrite
+
 ## Build และ deploy
 
 ```powershell
