@@ -10,7 +10,6 @@ import {
   BookOutlined,
   DashboardOutlined,
   TeamOutlined,
-  ReadOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import { Button, Tooltip } from "antd";
@@ -30,9 +29,7 @@ export default function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <NavLink to="/dashboard" className="brand">
-          <span className="brand-icon">
-            <ReadOutlined />
-          </span>
+          <img className="brand-icon" src="/icons/schoolroom.svg" alt="" width={44} height={44} />
           <div>Schoolroom</div>
         </NavLink>
         <div className="nav-caption">เมนูจัดการ</div>
