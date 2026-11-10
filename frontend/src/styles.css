@@ -298,6 +298,46 @@ h2 > .ant-tag {
 .error-notice {
   margin: 0 0 18px;
 }
+.report-description,
+.history-description,
+.history-footnote {
+  color: #7b8874;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.report-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.history-student {
+  padding: 18px;
+  background: #f6f8f2;
+  border-radius: 9px;
+}
+.history-student p,
+.history-entry p {
+  margin: 6px 0 0;
+  color: #7b8874;
+  font-size: 12px;
+}
+.history-year h3 {
+  margin: 25px 0 20px;
+}
+.history-content {
+  min-height: 120px;
+}
+.history-entry {
+  padding-bottom: 8px;
+}
+.history-entry-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
 .panel > .error-notice {
   margin: 0 25px 18px;
 }

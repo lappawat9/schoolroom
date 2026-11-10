@@ -16,6 +16,7 @@ import {
   UpdateStudentDto,
 } from "./student.dto";
 import { StudentService } from "./student.service";
+import { StudentClassroomHistoryDto } from "./student-history.dto";
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -49,6 +50,13 @@ export class StudentController {
   @ApiOperation({ summary: "ดูข้อมูลนักเรียนตาม id" })
   findOne(@Param("id", ParseIntPipe) id: number) {
     return this.studentService.findOne(id);
+  }
+
+  @Get(":id/classroom-history")
+  @ApiOperation({ summary: "ประวัติจัดห้อง รวมรายการที่สิ้นสุดแล้วและห้องที่ถูกลบ" })
+  @ApiOkResponse({ type: [StudentClassroomHistoryDto] })
+  classroomHistory(@Param("id", ParseIntPipe) id: number) {
+    return this.studentService.classroomHistory(id);
   }
 
   @Post()
