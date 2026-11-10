@@ -93,10 +93,3 @@ branch `rest-main`, `rest-front`, `rest-back` เป็นรุ่น REST ท�
 เก็บโค้ด ไว้ที่ branch `rest-main`, `rest-front` และ `rest-back` สามารถเปิดอ่านหรือ clone แยกมารันได้ โดยใช้ฐานข้อมูลโครงสร้างเดิม
 
 `git fetch origin` ก่อนคืนโค้ด ใน branch `front` ใช้ `git restore --source origin/rest-front --staged --worktree .` แล้ว commit ส่วน branch `back` ใช้ `origin/rest-back` และ branch `main` ใช้ `origin/rest-main` วิธีนี้คืนไฟล์ทั้งชุด รวม module และ dependencies โดยเก็บประวัติเดิมไว้ จากนั้นรัน `npm ci` และ build ใหม่ ใช้ Frontend/Backend รุ่นเดียวกัน ตั้ง `VITE_API_URL=https://schoolroom-api.vercel.app/api` ก่อน build Frontend และ deploy ทั้งสองฝั่งอีกครั้ง
-
-
-
-
-หน้านักเรียนเลือกปีและกรองได้ทั้งทั้งหมด / จัดห้องแล้ว / ยังไม่จัดห้อง คอลัมน์ห้องเรียนแสดงห้องในปีที่เลือก หน้าห้องเรียนกรองปีได้หรือเว้นว่างเพื่อดูทุกปี URL เก็บปีและสถานะจัดห้องไว้ จึงโหลดหน้าใหม่หรือส่งลิงก์ต่อได้
-
-Query `dashboard(academicYear: Int)` คืน `academicYear`, `academicYears`, `totalStudents`, `totalClassrooms`, `assignedStudents` และ `unassignedStudents` ตัวกรอง `students` รับ `academicYear` และ `unassigned` (true = ยังไม่จัดห้อง, false = จัดห้องแล้ว) ส่วน `classrooms` รับ `academicYear` ทุกปีรับจำนวนเต็ม พ.ศ. 2400–3000
