@@ -3,7 +3,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { readFileSync } from "node:fs";
 
 export function setupSwagger(app: INestApplication) {
-  // ระบุไฟล์ตรง ๆ เพื่อให้ Vercel รวม assets ของ Swagger ใน function bundle
+
   const assets = [
     [
       "swagger-ui.css",
