@@ -83,6 +83,35 @@ export class StudentService {
     return this.toResponse(student);
   }
 
+  async classroomHistory(id: number) {
+    await this.findOne(id);
+    const result = await this.dataSource
+      .getRepository(ClassroomStudent)
+      .createQueryBuilder("membership")
+      .withDeleted()
+      .leftJoinAndSelect("membership.classroom", "classroom")
+      .addSelect("UNIX_TIMESTAMP(membership.addedAt)", "historyAddedAt")
+      .addSelect("UNIX_TIMESTAMP(membership.deletedAt)", "historyEndedAt")
+      .where("membership.studentId = :id", { id })
+      .orderBy("membership.academicYear", "DESC")
+      .addOrderBy("membership.addedAt", "DESC")
+      .addOrderBy("membership.id", "DESC")
+      .getRawAndEntities();
+    const timestamp = (seconds: number | string) => new Date(Number(seconds) * 1000).toISOString();
+    return result.entities.map((membership, index) => ({
+      id: membership.id,
+      classroomId: membership.classroomId,
+      roomNumber: membership.classroom?.roomNumber ?? null,
+      roomName: membership.classroom?.name ?? null,
+      academicYear: membership.academicYear,
+      addedAt: timestamp(result.raw[index].historyAddedAt),
+      endedAt: result.raw[index].historyEndedAt === null
+        ? null : timestamp(result.raw[index].historyEndedAt),
+      classroomDeleted: !!membership.classroom?.deletedAt,
+      isActive: !membership.deletedAt && !!membership.classroom && !membership.classroom.deletedAt,
+    }));
+  }
+
   async create(dto: CreateStudentDto) {
     this.validateBirthDate(dto.birthDate);
     await this.lookupService.validateStudent(

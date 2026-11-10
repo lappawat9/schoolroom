@@ -28,6 +28,7 @@ npm run dev
 | ดู / แก้ไข / ลบห้อง | GET / PATCH / DELETE /api/classrooms/:id |
 | นักเรียนในห้อง | GET /api/classrooms/:id/students |
 | เพิ่มหรือย้ายเข้าห้อง / นำออก | PUT / DELETE /api/classrooms/:id/students/:studentId |
+| ประวัติห้องเรียนของนักเรียน | GET /api/students/:id/classroom-history |
 | รายงานอายุ 10-12 ปี | GET /api/reports/students |
 
 GET students รองรับ studentCode, name, gradeLevelId, page และ pageSize ส่วน GET classrooms รองรับ roomNumber, name, teacherName, page และ pageSize โดย pageSize สูงสุด 100 ข้อผิดพลาดใช้ HTTP status 400/404/409 ตามกรณี
@@ -62,3 +63,14 @@ npm start
 เว็บที่ schoolroom-web.vercel.app ปัจจุบันใช้ GraphQL สามารถ deploy รุ่น REST คู่นี้ไปโดเมนของคุณ หรือสลับทั้งสองโปรเจกต์กลับเป็น REST พร้อมเปลี่ยน env ให้ตรงรุ่นได้ โค้ด GraphQL อยู่ที่ main/front/back ส่วน REST ดั้งเดิมก่อนเพิ่มรายงานและการเรียงค้นหาเก็บไว้ที่ tag rest-baseline-main, rest-baseline-front, rest-baseline-back
 
 เมื่อแก้ Backend ให้ commit และ push ด้วย git push origin rest-back
+
+
+## ตัวอย่างรายงานและประวัติห้องเรียน
+
+กด **ดาวน์โหลดรายงาน** เพื่อดูตัวอย่างก่อนส่งออก มีวันที่ข้อมูล จำนวนนักเรียนไม่ซ้ำ จำนวนแถว และตารางแบ่งหน้า PDF และ Excel ใช้ข้อมูลชุดเดียวกับตัวอย่าง หากต้องการข้อมูลล่าสุดให้กด **โหลดข้อมูลรายงานใหม่**
+
+กดชื่อนักเรียนหรือปุ่มประวัติเพื่อดูรายการจัดห้องแยกตามปีการศึกษา แสดงวันที่เพิ่ม วันที่สิ้นสุด สถานะปัจจุบัน และห้องที่ถูกลบ โดยอ่านทั้งรายการปกติและ soft delete จาก classroom_students
+
+REST endpoint สำหรับประวัติคือ `GET /api/students/:id/classroom-history` มี response schema ใน Swagger
+
+ประวัติแสดงเท่าที่ฐานข้อมูลเก็บไว้ ไม่มีข้อมูลผู้ดำเนินการหรือเหตุผลแยกว่าย้ายห้อง/นำออก/ลบห้อง จึงใช้คำว่า “สิ้นสุดการอยู่ห้อง” ชื่อห้องอ่านจากข้อมูลห้องที่มีอยู่ และปีการศึกษาใช้ค่าที่เก็บในรายการจัดห้อง หากแก้ข้อมูลเดิม ประวัติส่วนนี้อาจเปลี่ยนตาม ไม่ใช่ snapshot การแก้ไขทุกครั้ง
