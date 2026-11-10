@@ -39,6 +39,15 @@ export const LOOKUPS = `
   }
 `;
 
+export const STUDENT_REPORT = `
+  query StudentReport {
+    result: studentReport {
+      asOfDate
+      rows { studentCode fullName gender age roomNumber roomName academicYear }
+    }
+  }
+`;
+
 export const CLASSROOM_STUDENTS = `
   query ClassroomStudents($classroomId: Int!, $filter: StudentFilterInput) {
     result: classroomStudents(classroomId: $classroomId, filter: $filter) {

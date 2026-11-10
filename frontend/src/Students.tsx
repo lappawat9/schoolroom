@@ -30,6 +30,7 @@ import {
   UPDATE_STUDENT,
 } from "./queries";
 import { useRemote } from "./useRemote";
+import ReportDownload from "./ReportDownload";
 import type { Lookups, Page, Student } from "./types";
 import {
   EmptyData,
@@ -132,14 +133,17 @@ export default function Students({ revision, onChange }: PageProps) {
           </h2>
           <p>ข้อมูลนักเรียนที่ใช้งานอยู่ในระบบ</p>
         </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => open(null)}
-          disabled={!lookups.data}
-        >
-          เพิ่มนักเรียน
-        </Button>
+        <Space wrap>
+          <ReportDownload />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => open(null)}
+            disabled={!lookups.data}
+          >
+            เพิ่มนักเรียน
+          </Button>
+        </Space>
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
       <Form

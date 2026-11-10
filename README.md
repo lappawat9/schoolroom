@@ -52,11 +52,15 @@ Backend ใช้ฐานข้อมูลที่มีตาราง `stud
 
 นักเรียนอยู่ได้หนึ่งห้องต่อปีการศึกษา การลบใช้ soft delete และการเปลี่ยนปีของห้องจะปรับปีในรายการจัดห้องด้วย หากชนกับห้องอื่นของนักเรียนในปีเดียวกัน GraphQL จะคืน error รหัส `CONFLICT` เพื่อให้จัดห้องก่อน
 
+## ดาวน์โหลดรายงาน
+
+ปุ่ม **ดาวน์โหลดรายงาน** บนหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
+
 ## GraphQL
 
 Frontend ส่ง Query / Mutation จาก `frontend/src/queries.ts` ผ่าน `api.ts` ไปที่ `/api/graphql` ฝั่ง Backend ใช้ Resolver แยกนักเรียนกับห้องเรียน แล้วเรียก Service และ TypeORM เพื่อจัดการ MySQL
 
-- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`
+- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`
 - Mutation: `createStudent`, `updateStudent`, `deleteStudent`, `createClassroom`, `updateClassroom`, `deleteClassroom`, `assignStudent`, `removeStudentFromClassroom`
 - `students` และ `classrooms` รับ `filter` ซึ่งรวม `page` และ `pageSize` ไว้ด้วย
 - ข้อผิดพลาดอ่านจาก `errors` ใน response แม้ HTTP status เป็น 200
