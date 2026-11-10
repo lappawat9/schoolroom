@@ -45,6 +45,8 @@ export class ClassroomService {
 
   async findAll(query: ClassroomFilterInput) {
     const qb = this.query();
+    if (query.academicYear != null)
+      qb.andWhere("classroom.academicYear = :academicYear", { academicYear: query.academicYear });
     if (query.roomNumber)
       qb.andWhere("classroom.roomNumber LIKE :roomNumber", {
         roomNumber: `%${query.roomNumber}%`,

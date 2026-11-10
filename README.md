@@ -35,12 +35,12 @@ API และหน้า GraphiQL อยู่ที่ http://localhost:3000/a
 
 ## Query และ Mutation
 
-- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`, `studentClassroomHistory`
+- Query: `health`, `lookups`, `students`, `student`, `classrooms`, `classroom`, `classroomStudents`, `studentReport`, `studentClassroomHistory`, `dashboard`
 - Mutation นักเรียน: `createStudent`, `updateStudent`, `deleteStudent`
 - Mutation ห้องเรียน: `createClassroom`, `updateClassroom`, `deleteClassroom`
 - Mutation จัดห้อง: `assignStudent`, `removeStudentFromClassroom`
-- ตัวกรอง `students`: `studentCode`, `name`, `gradeLevelId`, `page`, `pageSize`
-- ตัวกรอง `classrooms`: `roomNumber`, `name`, `teacherName`, `page`, `pageSize`
+- ตัวกรอง `students`: `studentCode`, `name`, `gradeLevelId`, `academicYear`, `unassigned`, `page`, `pageSize`
+- ตัวกรอง `classrooms`: `roomNumber`, `name`, `teacherName`, `academicYear`, `page`, `pageSize`
 
 ```graphql
 query {
@@ -94,7 +94,7 @@ Resolver แยกใน `students/student.resolver.ts` และ `classrooms/cl
 
 ## รายงานนักเรียน
 
-ปุ่ม **ดาวน์โหลดรายงาน** บนหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
+ปุ่ม **ดาวน์โหลดรายงาน** บนหน้าภาพรวมและหน้านักเรียนเลือกได้ทั้ง PDF และ Excel (.xlsx) ใช้ Query `studentReport` ดึงนักเรียนอายุ 10–12 ปีตาม `Report.sql` ทั้งชุด โดยไม่อิงตัวกรองหรือหน้าตารางปัจจุบัน นักเรียนหนึ่งคนมีได้หลายแถวตามปีการศึกษา และช่องห้องว่างหมายถึงยังไม่มีห้อง อายุคำนวณ ณ วันที่ MySQL ระบุใน `asOfDate`
 
 `reports/report.resolver.ts` รับ Query และเรียก `ReportService.studentReport()` อ่านข้อมูลด้วย SQL เงื่อนไขเดียวกับ `Report.sql` โดยใช้วันที่จาก MySQL ชุดเดียวกัน ข้อมูลส่งผ่าน GraphQL ให้ Frontend สร้างไฟล์ จึงไม่มี endpoint ดาวน์โหลด REST เพิ่ม
 
@@ -142,3 +142,13 @@ Query `studentClassroomHistory(studentId: Int!)` คืนรายการต�
 กดชื่อนักเรียนหรือปุ่มประวัติเพื่อดูรายการจัดห้องแยกตามปีการศึกษา แสดงวันที่เพิ่ม วันที่สิ้นสุด สถานะปัจจุบัน และห้องที่ถูกลบ โดยอ่านทั้งรายการปกติและ soft delete จาก classroom_students
 
 ประวัติแสดงเท่าที่ฐานข้อมูลเก็บไว้ ไม่มีข้อมูลผู้ดำเนินการหรือเหตุผลแยกว่าย้ายห้อง/นำออก/ลบห้อง จึงใช้คำว่า “สิ้นสุดการอยู่ห้อง” ชื่อห้องอ่านจากข้อมูลห้องที่มีอยู่ และปีการศึกษาใช้ค่าที่เก็บในรายการจัดห้อง หากแก้ข้อมูลเดิม ประวัติส่วนนี้อาจเปลี่ยนตาม ไม่ใช่ snapshot การแก้ไขทุกครั้ง
+
+## ภาพรวมระบบ
+
+หน้าแรก /dashboard แสดงจำนวนนักเรียนทั้งหมด ห้องเรียน และนักเรียนที่ยังไม่จัดห้อง พร้อมเลือกปีการศึกษาและกดการ์ดเพื่อเปิดรายชื่อที่ตรงกับตัวเลข มีสัดส่วนการจัดห้องและปุ่มเปิดตัวอย่างรายงานด้วย
+
+ยอดนักเรียนทั้งหมดนับเฉพาะคนที่ยังใช้งานอยู่ในปัจจุบัน ส่วนห้องเรียนและสถานะจัดห้องอิงปีที่เลือก ไม่ใช่ยอดนักเรียนย้อนหลัง คนที่มีห้องเฉพาะปีอื่นยังถือว่ายังไม่จัดห้องในปีที่เลือก ห้องและรายการจัดห้องที่ถูก soft delete ไม่นับรวม ปีเริ่มต้นใช้ปี พ.ศ. ปัจจุบันจาก MySQL
+
+หน้านักเรียนเลือกปีและกรองได้ทั้งทั้งหมด / จัดห้องแล้ว / ยังไม่จัดห้อง คอลัมน์ห้องเรียนแสดงห้องในปีที่เลือก หน้าห้องเรียนกรองปีได้หรือเว้นว่างเพื่อดูทุกปี URL เก็บปีและสถานะจัดห้องไว้ จึงโหลดหน้าใหม่หรือส่งลิงก์ต่อได้
+
+Query `dashboard(academicYear: Int)` คืน `academicYear`, `academicYears`, `totalStudents`, `totalClassrooms`, `assignedStudents` และ `unassignedStudents` ตัวกรอง `students` รับ `academicYear` และ `unassigned` (true = ยังไม่จัดห้อง, false = จัดห้องแล้ว) ส่วน `classrooms` รับ `academicYear` ทุกปีรับจำนวนเต็ม พ.ศ. 2400–3000

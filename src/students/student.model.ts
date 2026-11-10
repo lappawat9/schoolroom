@@ -23,7 +23,7 @@ export class StudentModel {
   @Field() gradeLevel!: string;
   @Field(() => Int) enrollmentYear!: number;
   @Field(() => Int, { nullable: true }) classroomId!: number | null;
-  @Field(() => StudentClassroom, { nullable: true })
+  @Field(() => StudentClassroom, { nullable: true, description: "ห้องในปีที่กรอง หรือห้องล่าสุดเมื่อไม่ระบุปี" })
   classroom!: StudentClassroom | null;
   @Field(() => [StudentClassroom]) classrooms!: StudentClassroom[];
 }
