@@ -7,3 +7,6 @@ dist/
 *.log
 *.tsbuildinfo
 .DS_Store
+/branches/
+/documents/
+/_work/

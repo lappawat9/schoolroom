@@ -5,3 +5,6 @@
 **/*.log
 **/*.tsbuildinfo
 .git
+branches/**
+documents/**
+_work/**
