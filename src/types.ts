@@ -42,3 +42,15 @@ export interface Lookups {
   grades: { id: number; name: string }[];
   teachers: { id: number; name: string }[];
 }
+
+export interface ClassroomHistory {
+  id: number;
+  classroomId: number;
+  roomNumber: string | null;
+  roomName: string | null;
+  academicYear: number;
+  addedAt: string;
+  endedAt: string | null;
+  classroomDeleted: boolean;
+  isActive: boolean;
+}

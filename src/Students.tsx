@@ -16,6 +16,7 @@ import {
 import {
   DeleteOutlined,
   EditOutlined,
+  HistoryOutlined,
   PlusOutlined,
   SearchOutlined,
   TeamOutlined,
@@ -23,6 +24,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { api, queryString } from "./api";
 import ReportDownload from "./ReportDownload";
+import StudentHistory from "./StudentHistory";
 import { useRemote } from "./useRemote";
 import type { Lookups, Page, Student } from "./types";
 import {
@@ -62,6 +64,7 @@ export default function Students({ revision, onChange }: PageProps) {
   const [editing, setEditing] = useState<Student | null>();
   const [form] = Form.useForm<StudentForm>();
   const [saving, setSaving] = useState(false);
+  const [historyStudent, setHistoryStudent] = useState<Student>();
   const gradeOptions = lookups.data?.grades.map((grade) => ({
     value: grade.id,
     label: grade.name,
@@ -225,7 +228,7 @@ export default function Students({ revision, onChange }: PageProps) {
                   {student.firstName.slice(0, 1)}
                 </span>
                 <div>
-                  <strong>{fullName(student)}</strong>
+                  <strong><button className="text-link" aria-label={`ดูประวัติห้องเรียน ${student.studentCode}`} onClick={() => setHistoryStudent(student)}>{fullName(student)}</button></strong>
                   <span>
                     {genderLabels[student.gender]} ·{" "}
                     {dayjs(student.birthDate).format("D MMM")}{" "}
@@ -250,9 +253,12 @@ export default function Students({ revision, onChange }: PageProps) {
           {
             title: "จัดการ",
             key: "actions",
-            width: 110,
+            width: 145,
             render: (_, student) => (
               <Space size={2}>
+                <Tooltip title="ประวัติห้องเรียน">
+                  <Button type="text" icon={<HistoryOutlined />} aria-label={`ประวัติ ${student.studentCode}`} onClick={() => setHistoryStudent(student)} />
+                </Tooltip>
                 <Tooltip title="แก้ไขข้อมูล">
                   <Button
                     aria-label={`แก้ไข ${student.studentCode}`}
@@ -282,6 +288,8 @@ export default function Students({ revision, onChange }: PageProps) {
           },
         ]}
       />
+      {historyStudent && <StudentHistory key={historyStudent.id} student={historyStudent}
+        revision={revision} onClose={() => setHistoryStudent(undefined)} />}
       <Modal
         title={editing ? "แก้ไขข้อมูลนักเรียน" : "เพิ่มนักเรียนใหม่"}
         open={editing !== undefined}
