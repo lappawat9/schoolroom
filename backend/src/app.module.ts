@@ -6,6 +6,7 @@ import { StudentModule } from "./students/student.module";
 import { ClassroomModule } from "./classrooms/classroom.module";
 import { ReportModule } from "./reports/report.module";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { DashboardModule } from "./dashboard/dashboard.module";
 @ApiTags("Health")
 @Controller("health")
 class HealthController {
@@ -23,6 +24,7 @@ class HealthController {
     StudentModule,
     ClassroomModule,
     ReportModule,
+    DashboardModule,
   ],
   controllers: [HealthController],
 })

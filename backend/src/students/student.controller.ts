@@ -41,7 +41,7 @@ export class StudentController {
     description:
       "คืน { data, total, page, pageSize } ไม่รวมรายการที่ถูก soft delete",
   })
-  @ApiOkResponse({ description: "รายชื่อนักเรียนพร้อมห้องเรียนล่าสุด" })
+  @ApiOkResponse({ description: "รายชื่อนักเรียนพร้อมห้องในปีที่เลือก หรือห้องล่าสุดเมื่อไม่ระบุปี" })
   findAll(@Query() query: StudentQueryDto) {
     return this.studentService.findAll(query);
   }

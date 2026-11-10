@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   App,
   Button,
   DatePicker,
   Form,
   Input,
+  InputNumber,
   Modal,
   Popconfirm,
   Select,
@@ -23,15 +25,16 @@ import {
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { api, queryString } from "./api";
+import { useRemote } from "./useRemote";
 import ReportDownload from "./ReportDownload";
 import StudentHistory from "./StudentHistory";
-import { useRemote } from "./useRemote";
 import type { Lookups, Page, Student } from "./types";
 import {
   EmptyData,
   ErrorNotice,
   fullName,
   genderLabels,
+  currentYear,
   RoomTag,
   type PageProps,
 } from "./shared";
@@ -48,6 +51,11 @@ interface StudentForm {
 
 export default function Students({ revision, onChange }: PageProps) {
   const { message } = App.useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const year = Number(searchParams.get("academicYear"));
+  const academicYear = Number.isInteger(year) && year >= 2400 && year <= 3000 ? year : currentYear;
+  const assignment = searchParams.get("unassigned");
+  const unassigned = assignment === "true" ? true : assignment === "false" ? false : undefined;
   const [filters, setFilters] = useState<{
     studentCode?: string;
     name?: string;
@@ -56,8 +64,9 @@ export default function Students({ revision, onChange }: PageProps) {
   const [searchForm] = Form.useForm();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  useEffect(() => setPage(1), [academicYear, unassigned]);
   const result = useRemote<Page<Student>>(
-    `/students?${queryString({ ...filters, page, pageSize })}`,
+    `/students?${queryString({ ...filters, academicYear, unassigned, page, pageSize })}`,
     revision,
   );
   const lookups = useRemote<Lookups>("/lookups");
@@ -142,6 +151,24 @@ export default function Students({ revision, onChange }: PageProps) {
         </Space>
       </div>
       <ErrorNotice error={lookups.error} retry={lookups.reload} />
+      <div className="list-scope-bar">
+        <div><label htmlFor="student-year">ปีการศึกษา</label>
+          <InputNumber id="student-year" value={academicYear} min={2400} max={3000} precision={0}
+            onChange={(value) => { const next = new URLSearchParams(searchParams);
+              if (value !== null) next.set("academicYear", String(value)); else next.delete("academicYear");
+              setSearchParams(next); setPage(1);
+            }} /></div>
+        <div><label htmlFor="student-assignment">การจัดห้องในปีที่เลือก</label>
+          <Select id="student-assignment" value={unassigned === undefined ? "all" : unassigned ? "unassigned" : "assigned"}
+            style={{ width: 185 }} options={[
+              { value: "all", label: "นักเรียนทั้งหมด" },
+              { value: "unassigned", label: "ยังไม่จัดห้อง" },
+              { value: "assigned", label: "จัดห้องแล้ว" },
+            ]} onChange={(value) => { const next = new URLSearchParams(searchParams);
+              if (value === "all") next.delete("unassigned"); else next.set("unassigned", String(value === "unassigned"));
+              setSearchParams(next); setPage(1);
+            }} /></div>
+      </div>
       <Form
         name="student-search"
         form={searchForm}
@@ -178,6 +205,7 @@ export default function Students({ revision, onChange }: PageProps) {
               searchForm.resetFields();
               setFilters({});
               setPage(1);
+              setSearchParams({ academicYear: String(academicYear) });
             }}
           >
             ล้างค่า
@@ -228,7 +256,9 @@ export default function Students({ revision, onChange }: PageProps) {
                   {student.firstName.slice(0, 1)}
                 </span>
                 <div>
-                  <strong><button className="text-link" aria-label={`ดูประวัติห้องเรียน ${student.studentCode}`} onClick={() => setHistoryStudent(student)}>{fullName(student)}</button></strong>
+                  <strong><button className="text-link"
+                    aria-label={`ดูประวัติห้องเรียน ${student.studentCode}`}
+                    onClick={() => setHistoryStudent(student)}>{fullName(student)}</button></strong>
                   <span>
                     {genderLabels[student.gender]} ·{" "}
                     {dayjs(student.birthDate).format("D MMM")}{" "}
@@ -245,7 +275,7 @@ export default function Students({ revision, onChange }: PageProps) {
             render: (value) => <Tag className="grade-tag">{value}</Tag>,
           },
           {
-            title: "ห้องเรียนล่าสุด",
+            title: `ห้องเรียน ปี ${academicYear}`,
             key: "classroom",
             render: (_, student) => <RoomTag name={student.classroom?.name} />,
           },
@@ -257,7 +287,9 @@ export default function Students({ revision, onChange }: PageProps) {
             render: (_, student) => (
               <Space size={2}>
                 <Tooltip title="ประวัติห้องเรียน">
-                  <Button type="text" icon={<HistoryOutlined />} aria-label={`ประวัติ ${student.studentCode}`} onClick={() => setHistoryStudent(student)} />
+                  <Button type="text" icon={<HistoryOutlined />}
+                    aria-label={`ประวัติ ${student.studentCode}`}
+                    onClick={() => setHistoryStudent(student)} />
                 </Tooltip>
                 <Tooltip title="แก้ไขข้อมูล">
                   <Button
